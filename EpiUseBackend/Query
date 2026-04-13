@@ -1,0 +1,30 @@
+create table login_table( 
+    username VARCHAR (150), 
+    pass VARCHAR(255), 
+    company VARCHAR(255),
+    name VARCHAR(50),
+    surname VARCHAR (60),
+);
+
+
+--remember to match company names too
+create table employees(
+    name VARCHAR(50),
+    surname VARCHAR (60),
+    alias VARCHAR(50)
+    birthdate DATE,
+    employeeID VARCHAR(9),
+    salary money, 
+    role VARCHAR(50), 
+    managerID VARCHAR(9), 
+    department VARCHAR(50), 
+    companyName VARCHAR(60),
+    companyID VARCHAR(15),
+    email 
+);
+
+create table roles(
+    role VARCHAR(50), 
+    company VARCHAR(60),
+    roleID VARCHAR(9), 
+);
