@@ -8,6 +8,7 @@ function App() {
   const [count, setCount] = useState(0)
 
   return (
+
     <>
       <section id="center">
         <div className="hero">
@@ -115,6 +116,7 @@ function App() {
       <div className="ticks"></div>
       <section id="spacer"></section>
     </>
+
   )
 }
 
