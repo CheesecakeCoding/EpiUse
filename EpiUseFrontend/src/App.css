@@ -1,0 +1,27 @@
+
+.CenterDiv {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.leftChildren {
+  display: flex;
+  justify-content: left;
+  text-align: left;
+  align-items: left;
+  position: absolute;
+  width: 100%;
+}
+
+.rightChildren {
+  display: flex;
+  justify-content: right;
+  text-align: right;
+  align-items: right;
+  position: absolute;
+  width: 100%;
+}
+
