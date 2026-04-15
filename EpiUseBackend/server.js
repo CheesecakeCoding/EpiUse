@@ -1,8 +1,8 @@
 require("dotenv").config();
 
 const { Sequelize, DataTypes } = require("sequelize");
-const crypto = require('crypto');
-const hash = crypto.createHash('sha256');
+const crypto = require("crypto");
+const hash = crypto.createHash("sha256");
 /*var bodyParser = require('body-parser');
 const express = require("express");
 const app = express();
@@ -10,18 +10,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));*/
 const express = require("express");
 const cors = require("cors");
-const bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
 //const raw = require('body-parser/raw')
 const app = express();
 //app.use(express.json());
 app.use(bodyParser.urlencoded());
 app.use(cors());
 
-
 //app.use(bodyParser.urlencoded({extended:true}));
-
-
-
 
 const port = process.env.PORT || 3000;
 
@@ -58,8 +54,6 @@ const post = sequelize.define("post", {
   },
 });
 
-
-
 /*
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -69,8 +63,8 @@ app.get("/", (req, res) => {
 //xxx
 //xxx Staging endpoint - remove for final deployment
 app.get("/createTables", async (req, res) => {
-    try{
-        var [result, metadata] = await sequelize.query(` 
+  try {
+    var [result, metadata] = await sequelize.query(` 
             create table login_table (
               username VARCHAR(150) PRIMARY KEY,
               pass VARCHAR(255) not null,
@@ -80,43 +74,41 @@ app.get("/createTables", async (req, res) => {
             );
          
         `);
-        res.json({Status: 'ok', message: `Successfully created tables`});
-    } catch (err) {
-        res.status(500).json({error: err});
-    }
+    res.json({ Status: "ok", message: `Successfully created tables` });
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
 });
 
 app.get("/insertTable", async (req, res) => {
-    try{
-        var [result, metadata] = await sequelize.query(` 
+  try {
+    var [result, metadata] = await sequelize.query(` 
             insert into login_table (username, pass, company, name, surname)
             values ('mynhardt1234@gmail.com', '123', 'CompanyName', 'Kevin', 'Mynhardt');
         `);
-        res.json({Status: 'ok', res: `${result}`});
-        //console.log(result);
-    } catch (err) {
-        res.status(500).json({error: err});
-    }
+    res.json({ Status: "ok", res: `${result}` });
+    //console.log(result);
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
 });
 
-
-
 app.get("/TableCheck", async (req, res) => {
-    try{
-        var [result, metadata] = await sequelize.query(` 
+  try {
+    var [result, metadata] = await sequelize.query(` 
             select * from login_table;
         `);
-        console.log(result);
+    console.log(result);
 
-        res.status(200).json({res: `${result[0].username}`});
-    } catch (err) {
-        res.status(500).json({error: err});
-    }
+    res.status(200).json({ res: `${result[0].username}` });
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
 });
 
 app.get("/DropTables", async (req, res) => {
-    try{
-        var [result, metadata] = await sequelize.query(` 
+  try {
+    var [result, metadata] = await sequelize.query(` 
             DO $$ 
             DECLARE 
                 r RECORD;
@@ -126,12 +118,12 @@ app.get("/DropTables", async (req, res) => {
                 END LOOP; 
             END $$;
         `);
-        console.log(result);
+    console.log(result);
 
-        res.status(200).json({message: `Succesfully dropped all tables`});
-    } catch (err) {
-        res.status(500).json({error: err});
-    }
+    res.status(200).json({ message: `Succesfully dropped all tables` });
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
 });
 
 /*app.post("/create-post", async (req, res) => {
@@ -153,54 +145,65 @@ app.get("/get-posts", async (req, res) => {
   }
 });*/
 
-
 app.post("/createUser", async (req, res) => {
-  
-  try{
+  try {
     var { username, password, name, surname } = req.body;
     password = getHashAndSalt(password, name, surname);
-      //xxx Do exsitance check
-      /*var [count, rows] = await sequelize.findAndCountAll({where: {username}});
+    //xxx Do exsitance check
+    /*var [count, rows] = await sequelize.findAndCountAll({where: {username}});
       if (result.row[0].username != username)*/
-      var [result, metadata] = await sequelize.query(` 
+    var [result, metadata] = await sequelize
+      .query(
+        ` 
           insert into login_table (username, pass, name, surname)
           values (:user, :pass, :n, :s);
-      `, {
-        replacements: {
-          user: username,
-          pass: password,
-          n: name,
-          s: surname
+      `,
+        {
+          replacements: {
+            user: username,
+            pass: password,
+            n: name,
+            s: surname,
+          },
+          type: sequelize.QueryTypes.INSERT,
         },
-        type: sequelize.QueryTypes.INSERT
-      }).then(res.status(201).json({message: `Added user successfully`, login: true}));
-      
+      )
+      .then(
+        res
+          .status(201)
+          .json({ message: `Added user successfully`, login: true }),
+      );
   } catch (err) {
-      res.status(500).json({error: err});
+    res.status(500).json({ error: err });
   }
 });
 
-app.post("/login", async(req, res) => {
-  try{
+app.post("/login", async (req, res) => {
+  try {
     var { username, password } = req.body;
     password = getHashAndSalt(username, password);
     //xxx --where username = ${username}
     var result = await sequelize.query(` 
       select password, company from login_table 
     `);
-    //xxx Do check for username existence 
-    if (result.length == 0){
-      res.status(200).json({message: `Failed login: username not found`, login: false})
+    //xxx Do check for username existence
+    if (result.length == 0) {
+      res
+        .status(200)
+        .json({ message: `Failed login: username not found`, login: false });
     }
-    if (result[0].password != password){
-      res.status(200).json({message: `Failed login: username and password mismatch`, login: false})
+    if (result[0].password != password) {
+      res
+        .status(200)
+        .json({
+          message: `Failed login: username and password mismatch`,
+          login: false,
+        });
     }
-    
   } catch (err) {
-    res.status(500).json({error: err, path: 'login'});
+    res.status(500).json({ error: err, path: "login" });
   }
-})
-
+});
 
 /*
 Just boiler plate for an endpoint :D
@@ -214,32 +217,28 @@ app.get("/endpoint", async(req, res) => {
 })
 */
 
+app.get("/checkdb", async (req, res) => {});
 
-
-app.get("/checkdb", async(req, res) => {
-  
-})
-
-function getHashAndSalt(username, password){
+function getHashAndSalt(username, password) {
   hash.update(`${username}${password}${username}`);
-  return hash.digest('hex');
+  return hash.digest("hex");
 }
 
-function getUserInformation(username){
-  try{
+function getUserInformation(username) {
+  try {
     var result = sequelize.query(` 
       select * from login_table where username = ${username};
     `);
     return result[0];
   } catch (err) {
-    res.status(500).json({error: err, path: 'login'});
+    res.status(500).json({ error: err, path: "login" });
   }
 }
 
-function createToken(){
+function createToken() {
   //xxx Add session based tokens for better security
 }
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`App listening at http://localhost:${port}`);
 });
