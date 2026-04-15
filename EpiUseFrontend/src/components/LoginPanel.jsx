@@ -1,3 +1,6 @@
+self.$RefreshReg$ = () => {};
+self.$RefreshSig$ = () => () => {};
+
 function LoginPanel() {
   return (
     <div class="CenterDiv">
