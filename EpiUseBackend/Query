@@ -1,8 +1,8 @@
 create table login_table (
   username VARCHAR(150) PRIMARY KEY,
-  pass VARCHAR(255) not null,
+  password VARCHAR(255) not null,
   company VARCHAR(255),
-  name VARCHAR(50) not null,
+  firstname VARCHAR(50) not null,
   surname VARCHAR(60) not null
 );
 
