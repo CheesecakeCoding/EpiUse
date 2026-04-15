@@ -1,4 +1,6 @@
 import "bootstrap/dist/css/bootstrap.css";
+self.$RefreshReg$ = () => {};
+self.$RefreshSig$ = () => () => {};
 
 function LoginPanel() {
   return (
