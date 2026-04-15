@@ -1,5 +1,4 @@
 import "bootstrap/dist/css/bootstrap.css";
-import LableTextBox from "./LabelTextBox";
 
 function LoginPanel() {
   return (
