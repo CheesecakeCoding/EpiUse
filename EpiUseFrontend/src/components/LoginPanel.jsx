@@ -10,7 +10,6 @@ function LoginPanel() {
         </div>
         <br />
         <div class="container">
-          <LableTextBox></LableTextBox>
           <label for="uname">
             <b>Username</b>
           </label>
