@@ -1,15 +1,19 @@
-import "./App.css";
-import "bootstrap/dist/css/bootstrap.css";
-import LoginPanel from "./components/LoginPanel";
-self.$RefreshReg$ = () => {};
-self.$RefreshSig$ = () => () => {};
+//import ListGroup from "./components/ListGroup";
+
+import { useState } from "react";
+import Login from "./components/Login";
 
 function App() {
-  //const [count, setCount] = useState(0)
+  const [needLogin, setNeedLogin] = useState(true);
+  function handleLogin(val) {
+    setNeedLogin(val);
+  }
   return (
-    <div>
-      <LoginPanel></LoginPanel>
-    </div>
+    <>
+      <div className="container LoginContainer">
+        {needLogin && <Login handleLogin={handleLogin} />}
+      </div>
+    </>
   );
 }
 

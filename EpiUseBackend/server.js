@@ -6,7 +6,20 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
 const port = process.env.PORT || 3000;
+const mongoose = require("mongoose");
+
+/*mongoose
+  .connect(process.env.MONGOURL)
+  .then(() => {
+    console.log("DB Connected");
+  })
+  .catch((err) => console.log(err));*/
+/*const mysql = require("mysql");
 const sequelize = new Sequelize(process.env.DB_URL, {
+  username: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  port: process.env.DB_PORT,
+  database: process.env.DB,
   dialect: "postgres",
   logging: false,
   dialectOptions: {
@@ -16,22 +29,46 @@ const sequelize = new Sequelize(process.env.DB_URL, {
     },
   },
 });
-app.use(bodyParser.urlencoded());
+const con = mysql.createConnection({
+  host: process.env.SQLHOST,
+  user: process.env.SQLUSER,
+  password: process.env.SQLPASS,
+  port: process.env.SQLPORT,
+});*/
+
+app.use(bodyParser.json());
 app.use(cors());
 
-class login_table extends Model {}
+/*class login_table extends Model {}
 login_table.init(
   {
-    username: DataTypes.STRING,
-    password: DataTypes.STRING,
-    company: DataTypes.STRING,
-    firstname: DataTypes.STRING,
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    company: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    firstname: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     surname: DataTypes.STRING,
+    validated: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
   },
-  { sequelize, modelName: "login_table" },
-);
+  { sequelize, modelName: "login_table", freezeTableName: true },
+);*/
 
-sequelize
+/*sequelize
   .sync()
   .then(() => {
     console.log("Database connected");
@@ -39,9 +76,8 @@ sequelize
     sequelize
       .getQueryInterface()
       .showAllSchemas()
-      .then((tableObj) => {
-        console.log("// Tables in database", "==========================");
-        console.log(tableObj);
+      .then(() => {
+        login_table.sync();
       })
       .catch((err) => {
         console.log("showAllSchemas ERROR", err);
@@ -49,7 +85,7 @@ sequelize
   })
   .catch((err) => {
     console.log(err);
-  });
+  });*/
 
 //sequelize.model.login_table;
 
@@ -62,7 +98,7 @@ app.get("/", (req, res) => {
 //xxx
 //xxx Staging endpoint - remove for final deployment
 app.get("/createTables", async (req, res) => {
-  try {
+  /*try {
     var [result, metadata] = await sequelize.query(` 
             create table login_table (
               username VARCHAR(150) PRIMARY KEY,
@@ -76,11 +112,11 @@ app.get("/createTables", async (req, res) => {
     res.json({ Status: "ok", message: `Successfully created tables` });
   } catch (err) {
     res.status(500).json({ error: err });
-  }
+  }*/
 });
 
 app.get("/insertTable", async (req, res) => {
-  try {
+  /*try {
     var [result, metadata] = await sequelize.query(` 
             insert into login_table (username, pass, company, firstname, surname)
             values ('mynhardt1234@gmail.com', '123', 'CompanyName', 'Kevin', 'Mynhardt');
@@ -89,24 +125,18 @@ app.get("/insertTable", async (req, res) => {
     //console.log(result);
   } catch (err) {
     res.status(500).json({ error: err });
-  }
+  }*/
 });
 
 app.get("/TableCheck", async (req, res) => {
   try {
-    var [result, metadata] = await sequelize.query(` 
-            select * from login_table
-        `);
-    console.log(result);
-
-    res.status(200).json({ res: `${result[0].username}` });
   } catch (err) {
     res.status(500).json({ error: err });
   }
 });
 
 app.get("/DropTables", async (req, res) => {
-  try {
+  /*try {
     var [result, metadata] = await sequelize.query(` 
           DROP TABLE IF EXISTS public.login_tables;
           DROP TABLE IF EXISTS public.login_table;
@@ -116,7 +146,7 @@ app.get("/DropTables", async (req, res) => {
     res.status(200).json({ message: `Succesfully dropped all tables` });
   } catch (err) {
     res.status(500).json({ error: err });
-  }
+  }*/
 });
 
 /*app.post("/create-post", async (req, res) => {
@@ -139,10 +169,20 @@ app.get("/get-posts", async (req, res) => {
 });*/
 
 app.post("/createUser", async (req, res) => {
+  /*console.log("Ëntry for createUser");
   try {
-    var { username, password, name, surname } = req.body;
+    var username = req.body.username;
+    var password = req.body.password;
+    var firstname = req.body.name;
+    var surname = req.body.surname;
     password = getHashAndSalt(username, password);
+    console.log("CreateUser after gethashandsalt");
     var existingUser = await getUserInformation(username);
+    console.log("CreateUser after getuserinformation");
+    if (existingUser.hasOwnProperty("error")) {
+      throw result.error;
+    }
+    //console.log(`existingUser: ${JSON.stringify(existingUser)}`);
     if (existingUser.length != 0) {
       res.status(409).json({
         message: `Account using the email specified already exists`,
@@ -152,10 +192,10 @@ app.post("/createUser", async (req, res) => {
     }
     var result = await login_table
       .create({
-        username: `${username}`,
-        password: `${password}`,
-        firstname: `${name}`,
-        surname: `${surname}`,
+        username: username,
+        password: password,
+        firstname: firstname,
+        surname: surname,
       })
       .then(
         res
@@ -164,22 +204,29 @@ app.post("/createUser", async (req, res) => {
       );
   } catch (err) {
     res.status(500).json({ error: err });
-  }
+  }*/
 });
 
 app.post("/login", async (req, res) => {
+  res.status(200).json({
+    message: `Failed login: username and password mismatch`,
+    login: false,
+  });
+  /*console.log(`Entry for login`);
   var token = createToken();
+  //xxx Check token and return if mismatch
   try {
     var { username, password } = req.body;
 
     password = getHashAndSalt(username, password);
+    console.log(`Login after hash andd salt`);
     var result = await getUserInformation(username);
-    console.log(`val: ${JSON.stringify(result)}`);
-    if (result.hasOwnProperty("err")) {
+    console.log(`Login after getUserInformation`);
+    if (result.hasOwnProperty("error")) {
       res.status(500).json({
         message: `Failed login: error with db`,
         login: false,
-        err: result.err,
+        error: result.error,
       });
       return;
     }
@@ -189,20 +236,24 @@ app.post("/login", async (req, res) => {
         .json({ message: `Failed login: username not found`, login: false });
       return;
     }
-    console.log(`Return val: ${result[0].password}`);
-    if (result[0].password != password) {
+   
+    console.log(`line: 215 ${JSON.stringify(result)}`);
+    if (result.hasOwnProperty("password") && result[0].password == password) {
       res.status(200).json({
-        message: `Failed login: username and password mismatch`,
-        login: false,
+        message: `Login Successful`,
+        login: true,
       });
     }
+    res.status(200).json({
+      message: `Failed login: username and password mismatch`,
+      login: false,
+    });
   } catch (err) {
     res.status(500).json({ error: err, path: "login" });
-  }
+  }*/
 });
 
-/*
-Just boiler plate for an endpoint :D
+/*Just boiler plate for an endpoint :D
 app.get("/endpoint", async(req, res) => {
   try{
     
@@ -216,22 +267,30 @@ app.get("/endpoint", async(req, res) => {
 app.get("/checkdb", async (req, res) => {});
 
 function getHashAndSalt(username, password) {
+  //console.log(`Hash and Salt entry`);
   var hash_new = crypto.createHash("sha256");
   hash_new.update(`${username}${password}`);
+  //console.log(`Hash and Salt exit`);
   return hash_new.digest("hex");
 }
 
 async function getUserInformation(username) {
+  /*console.log(`Entry point for getUserInformation`);
   try {
     var result = await login_table.findAll({
-      where: { username: `${username}` },
+      attributes: ["username", "password"], //,
     });
-    //console.log(`length: ${result.length}`);
-    //result = JSON.stringify(result);
-    return JSON.stringify(result);
+    //var result = await login_table.query(`SELECT * FROM login_table`);
+    // /where: { username: username },
+    // /where username = '${username}'`
+  
+    //console.log(`res: ${JSON.stringify(result)}`);
+
+    console.log(`Exit point for getUserInformation`);
+    return result;
   } catch (err) {
     return { error: err, path: "getUserInformation" };
-  }
+  }*/
 }
 
 function createToken() {
