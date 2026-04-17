@@ -18,8 +18,8 @@ function Register({ handleRegister }: RegisterProps) {
       return;
     }
     var formdata = new FormData();
-    formdata.append("LoginUsername", `${username}`);
-    formdata.append("RegisterName", `${password}`);
+    formdata.append("RegisterUsername", `${username}`);
+    formdata.append("RegisterPassword", `${password}`);
     formdata.append("RegisterName", `${firstname}`);
     formdata.append("RegisterSurname", `${lastname}`);
     var result = await register(formdata);

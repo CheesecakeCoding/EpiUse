@@ -9,8 +9,8 @@ export const register = async function (formdata) {
     var BODY = {
       username: `${username}`,
       password: `${password}`,
-      firstname: `${firstname}`,
-      lastname: `${lastname}`,
+      name: `${firstname}`,
+      surname: `${lastname}`,
     };
     var data = await post("createUser", BODY);
     return data;

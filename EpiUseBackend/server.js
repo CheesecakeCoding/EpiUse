@@ -52,7 +52,7 @@ login_table.init(
     },
     company: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     firstname: {
       type: DataTypes.STRING,
@@ -136,7 +136,7 @@ app.get("/TableCheck", async (req, res) => {
 });
 
 app.get("/DropTables", async (req, res) => {
-  /*try {
+  try {
     var [result, metadata] = await sequelize.query(` 
           DROP TABLE IF EXISTS public.login_tables;
           DROP TABLE IF EXISTS public.login_table;
@@ -145,8 +145,8 @@ app.get("/DropTables", async (req, res) => {
 
     res.status(200).json({ message: `Succesfully dropped all tables` });
   } catch (err) {
-    res.status(500).json({ error: err });
-  }*/
+    res.status(500).json({ error: err.message });
+  }
 });
 
 /*app.post("/create-post", async (req, res) => {
@@ -175,35 +175,37 @@ app.post("/createUser", async (req, res) => {
     var password = req.body.password;
     var firstname = req.body.name;
     var surname = req.body.surname;
+
     password = getHashAndSalt(username, password);
-    //console.log("CreateUser after gethashandsalt");
     var existingUser = await getUserInformation(username);
     // console.log("CreateUser after getuserinformation");
     /*if (existingUser.hasOwnProperty("error")) {
       throw result.error;
     }*/
-    //console.log("CreateUser after throwing error check");
-    console.log(`existingUser: ${JSON.stringify(existingUser)}`);
-    //console.log("CreateUser after JSON");
-    if (existingUser.length != 0) {
+    //console.log(JSON.stringify(existingUser));
+    if (
+      existingUser.length != 0 &&
+      !(existingUser[0].username === "null") &&
+      !(existingUser[0].username === null)
+    ) {
       res.status(409).json({
-        message: `Account using the email specified already exists`,
+        message: `Account already associated with '${username}'`,
         registered: false,
       });
       return;
     }
-    var result = await login_table.create({
-      username: username,
-      password: password,
-      firstname: firstname,
-      surname: surname,
-    });
-    console.log(`create user res; ${result}`);
-    /*.then(
+    var result = await login_table
+      .create({
+        username: username,
+        password: password,
+        firstname: firstname,
+        surname: surname,
+      })
+      .then(
         res
           .status(201)
           .json({ message: `Added user successfully`, registered: true }),
-      );*/
+      );
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -217,9 +219,7 @@ app.post("/login", async (req, res) => {
     var { username, password } = req.body;
 
     password = getHashAndSalt(username, password);
-    //console.log(`Login after hash andd salt`);
     var result = await getUserInformation(username);
-    //console.log(`Login after getUserInformation`);
     if (result.hasOwnProperty("error")) {
       res.status(500).json({
         message: `Failed login: error with db`,
@@ -234,13 +234,12 @@ app.post("/login", async (req, res) => {
         .json({ message: `Failed login: username not found`, login: false });
       return;
     }
-
-    // console.log(`line: 215 ${JSON.stringify(result)}`);
-    if (result.hasOwnProperty("password") && result[0].password == password) {
+    if (String(result[0].password) === String(password)) {
       res.status(200).json({
         message: `Login Successful`,
         login: true,
       });
+      return;
     }
     res.status(200).json({
       message: `Failed login: username and password mismatch`,
@@ -279,25 +278,18 @@ function getHashAndSalt(username, password) {
 }
 
 async function getUserInformation(username) {
-  console.log(`Entry point for getUserInformation`);
   try {
-    console.log(`before call`);
     var result = await login_table.findAll({
-      attributes: ["username", "password"], //,
+      attributes: ["username", "password"],
+      where: { username: `${username}` },
     });
-    //console.log(`after call`);
-    //var result = await login_table.query(`SELECT * FROM login_table`);
-    // /where: { username: username },
-    // /where username = '${username}'`
 
-    //console.log(`res: ${JSON.stringify(result)}`);
+    //console.log(`EH: ${JSON.stringify(result)}`);
 
-    //console.log(`Exit point for getUserInformation`);
-    //console.log(result);
-    //console.log(JSON.stringefy(result));
+    //console.log(result[0].password);
+
     return result;
   } catch (err) {
-    console.log(`ERROR in getUserInformation`);
     return { error: err.message, path: "getUserInformation" };
   }
 }
