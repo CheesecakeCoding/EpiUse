@@ -13,8 +13,8 @@ const mongoose = require("mongoose");
   .then(() => {
     console.log("DB Connected");
   })
-  .catch((err) => console.log(err));*/
-/*const mysql = require("mysql");
+  .catch((err) => console.log(err.message));*/
+//const mysql = require("mysql");
 const sequelize = new Sequelize(process.env.DB_URL, {
   username: process.env.DB_USER,
   password: process.env.DB_PASS,
@@ -29,7 +29,7 @@ const sequelize = new Sequelize(process.env.DB_URL, {
     },
   },
 });
-const con = mysql.createConnection({
+/*const con = mysql.createConnection({
   host: process.env.SQLHOST,
   user: process.env.SQLUSER,
   password: process.env.SQLPASS,
@@ -39,7 +39,7 @@ const con = mysql.createConnection({
 app.use(bodyParser.json());
 app.use(cors());
 
-/*class login_table extends Model {}
+class login_table extends Model {}
 login_table.init(
   {
     username: {
@@ -52,7 +52,7 @@ login_table.init(
     },
     company: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     firstname: {
       type: DataTypes.STRING,
@@ -66,9 +66,9 @@ login_table.init(
     },
   },
   { sequelize, modelName: "login_table", freezeTableName: true },
-);*/
+);
 
-/*sequelize
+sequelize
   .sync()
   .then(() => {
     console.log("Database connected");
@@ -85,9 +85,9 @@ login_table.init(
   })
   .catch((err) => {
     console.log(err);
-  });*/
+  });
 
-//sequelize.model.login_table;
+sequelize.model.login_table;
 
 /*
 app.get("/", (req, res) => {
@@ -136,7 +136,7 @@ app.get("/TableCheck", async (req, res) => {
 });
 
 app.get("/DropTables", async (req, res) => {
-  /*try {
+  try {
     var [result, metadata] = await sequelize.query(` 
           DROP TABLE IF EXISTS public.login_tables;
           DROP TABLE IF EXISTS public.login_table;
@@ -145,8 +145,8 @@ app.get("/DropTables", async (req, res) => {
 
     res.status(200).json({ message: `Succesfully dropped all tables` });
   } catch (err) {
-    res.status(500).json({ error: err });
-  }*/
+    res.status(500).json({ error: err.message });
+  }
 });
 
 /*app.post("/create-post", async (req, res) => {
@@ -169,24 +169,28 @@ app.get("/get-posts", async (req, res) => {
 });*/
 
 app.post("/createUser", async (req, res) => {
-  /*console.log("Ëntry for createUser");
+  console.log("Ëntry for createUser");
   try {
     var username = req.body.username;
     var password = req.body.password;
     var firstname = req.body.name;
     var surname = req.body.surname;
+
     password = getHashAndSalt(username, password);
-    console.log("CreateUser after gethashandsalt");
     var existingUser = await getUserInformation(username);
-    console.log("CreateUser after getuserinformation");
-    if (existingUser.hasOwnProperty("error")) {
+    // console.log("CreateUser after getuserinformation");
+    /*if (existingUser.hasOwnProperty("error")) {
       throw result.error;
-    }
-    //console.log(`existingUser: ${JSON.stringify(existingUser)}`);
-    if (existingUser.length != 0) {
+    }*/
+    //console.log(JSON.stringify(existingUser));
+    if (
+      existingUser.length != 0 &&
+      !(existingUser[0].username === "null") &&
+      !(existingUser[0].username === null)
+    ) {
       res.status(409).json({
-        message: `Account using the email specified already exists`,
-        login: false,
+        message: `Account already associated with '${username}'`,
+        registered: false,
       });
       return;
     }
@@ -200,28 +204,22 @@ app.post("/createUser", async (req, res) => {
       .then(
         res
           .status(201)
-          .json({ message: `Added user successfully`, login: true }),
+          .json({ message: `Added user successfully`, registered: true }),
       );
   } catch (err) {
-    res.status(500).json({ error: err });
-  }*/
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.post("/login", async (req, res) => {
-  res.status(200).json({
-    message: `Failed login: username and password mismatch`,
-    login: false,
-  });
-  /*console.log(`Entry for login`);
+  //console.log(`Entry for login`);
   var token = createToken();
   //xxx Check token and return if mismatch
   try {
     var { username, password } = req.body;
 
     password = getHashAndSalt(username, password);
-    console.log(`Login after hash andd salt`);
     var result = await getUserInformation(username);
-    console.log(`Login after getUserInformation`);
     if (result.hasOwnProperty("error")) {
       res.status(500).json({
         message: `Failed login: error with db`,
@@ -236,21 +234,20 @@ app.post("/login", async (req, res) => {
         .json({ message: `Failed login: username not found`, login: false });
       return;
     }
-   
-    console.log(`line: 215 ${JSON.stringify(result)}`);
-    if (result.hasOwnProperty("password") && result[0].password == password) {
+    if (String(result[0].password) === String(password)) {
       res.status(200).json({
         message: `Login Successful`,
         login: true,
       });
+      return;
     }
     res.status(200).json({
       message: `Failed login: username and password mismatch`,
       login: false,
     });
   } catch (err) {
-    res.status(500).json({ error: err, path: "login" });
-  }*/
+    res.status(500).json({ error: err.message, path: "login" });
+  }
 });
 
 /*Just boiler plate for an endpoint :D
@@ -259,12 +256,18 @@ app.get("/endpoint", async(req, res) => {
     
       
   } catch (err) {
-    res.status(500).json({error: err, path: 'endpoint'});
+    res.status(500).json({error: err.message, path: 'endpoint'});
   }
 })
 */
 
-app.get("/checkdb", async (req, res) => {});
+app.get("/checkdb", async (req, res) => {
+  var resp = getUserInformation("");
+  res.status(200).json({
+    message: `DB CHECK`,
+    res: { resp },
+  });
+});
 
 function getHashAndSalt(username, password) {
   //console.log(`Hash and Salt entry`);
@@ -275,22 +278,20 @@ function getHashAndSalt(username, password) {
 }
 
 async function getUserInformation(username) {
-  /*console.log(`Entry point for getUserInformation`);
   try {
     var result = await login_table.findAll({
-      attributes: ["username", "password"], //,
+      attributes: ["username", "password"],
+      where: { username: `${username}` },
     });
-    //var result = await login_table.query(`SELECT * FROM login_table`);
-    // /where: { username: username },
-    // /where username = '${username}'`
-  
-    //console.log(`res: ${JSON.stringify(result)}`);
 
-    console.log(`Exit point for getUserInformation`);
+    //console.log(`EH: ${JSON.stringify(result)}`);
+
+    //console.log(result[0].password);
+
     return result;
   } catch (err) {
-    return { error: err, path: "getUserInformation" };
-  }*/
+    return { error: err.message, path: "getUserInformation" };
+  }
 }
 
 function createToken() {
