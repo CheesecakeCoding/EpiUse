@@ -1,5 +1,5 @@
-import { ReactNode } from "react";
-import { useState } from "react";
+self.$RefreshReg$ = () => {};
+self.$RefreshSig$ = () => () => {};
 
 export function FailedAlert() {
   return (

@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Login from "./components/Login";
-
+self.$RefreshReg$ = () => {};
+self.$RefreshSig$ = () => () => {};
 function App() {
   const [needLogin, setNeedLogin] = useState(true);
   function handleLogin(val) {
