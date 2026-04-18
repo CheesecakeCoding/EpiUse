@@ -6,14 +6,17 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
 const port = process.env.PORT || 3000;
+const mysql = require("mysql2");
+const db_url = `mysql://${process.env.MYSQLUSER}:${process.env.MYSQL_ROOT_PASSWORD}@${process.env.RAILWAY_PRIVATE_DOMAIN}:3306/${process.env.MYSQL_DATABASE}`;
+const connection = mysql.createConnection(db_url);
 
-/*mongoose
-  .connect(process.env.MONGOURL)
-  .then(() => {
-    console.log("DB Connected");
-  })
-  .catch((err) => console.log(err.message));*/
-//const mysql = require("mysql");
+/*{
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
+  database: process.env.MYSQLDATABASE,
+} */
+
 const sequelize = new Sequelize(process.env.DB_URL, {
   username: process.env.DB_USER,
   password: process.env.DB_PASS,
