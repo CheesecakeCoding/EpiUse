@@ -7,7 +7,6 @@ const bodyParser = require("body-parser");
 const app = express();
 const port = process.env.PORT || 3000;
 
-
 /*mongoose
   .connect(process.env.MONGOURL)
   .then(() => {
@@ -172,6 +171,11 @@ companies.init(
   { sequelize, modelName: "companies", freezeTableName: true },
 );
 
+sequelize.model.login_table;
+sequelize.model.companies;
+sequelize.model.roles;
+sequelize.model.employees;
+
 sequelize
   .sync()
   .then(() => {
@@ -181,10 +185,7 @@ sequelize
       .getQueryInterface()
       .showAllSchemas()
       .then(() => {
-        login_table.sync();
-        employees.sync();
-        roles.sync();
-        companies.sync();
+        sequelize.sync();
       })
       .catch((err) => {
         console.log("showAllSchemas ERROR", err);
@@ -219,8 +220,8 @@ app.get("/DropTables", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-*/
 
+/*
 app.post("/createUser", async (req, res) => {
   //console.log("Ëntry for createUser");
   try {
@@ -230,9 +231,7 @@ app.post("/createUser", async (req, res) => {
 
     var existingUser = await getUserInformation(username);
     // console.log("CreateUser after getuserinformation");
-    /*if (existingUser.hasOwnProperty("error")) {
-      throw result.error;
-    }*/
+   
     //console.log(JSON.stringify(existingUser));
     if (
       existingUser.length != 0 &&
@@ -260,7 +259,7 @@ app.post("/createUser", async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message, registered: false });
   }
-});
+});*/
 
 app.post("/login", async (req, res) => {
   //console.log(`Entry for login`);
@@ -456,10 +455,9 @@ app.post("/employee/delete", async (req, res) => {
       .status(500)
       .json({ message: err.message, path: "/employee/delete", deleted: false });
   }
-});*/
+});
 
 app.post("/createUser", async (req, res) => {
-  console.log("Ëntry for createUser");
   try {
     var username = req.body.username;
     var password = req.body.password;
@@ -497,7 +495,7 @@ app.post("/createUser", async (req, res) => {
           .json({ message: `Added user successfully`, registered: true }),
       );
   } catch (err) {
-    res.status(500).json({ message: err.message, registered: true });
+    res.status(500).json({ message: err.message, registered: false });
   }
 });
 
