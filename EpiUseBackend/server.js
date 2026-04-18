@@ -6,9 +6,9 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
 const port = process.env.PORT || 3000;
-const mysql = require("mysql2");
-const db_url = `mysql://${process.env.MYSQLUSER}:${process.env.MYSQL_ROOT_PASSWORD}@${process.env.RAILWAY_PRIVATE_DOMAIN}:3306/${process.env.MYSQL_DATABASE}`;
-const connection = mysql.createConnection(db_url);
+//const mysql = require("mysql2");
+//const db_url = `mysql://${process.env.MYSQLUSER}:${process.env.MYSQL_ROOT_PASSWORD}@${process.env.RAILWAY_PRIVATE_DOMAIN}:3306/${process.env.MYSQL_DATABASE}`;
+//const connection = mysql.createConnection(db_url);
 
 /*{
   host: process.env.MYSQLHOST,
