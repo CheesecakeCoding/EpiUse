@@ -7,9 +7,20 @@ const bodyParser = require("body-parser");
 const app = express();
 const port = process.env.PORT || 3000;
 
+
+/*mongoose
+  .connect(process.env.MONGOURL)
+  .then(() => {
+    console.log("DB Connected");
+  })
+  .catch((err) => console.log(err.message));*/
+//const mysql = require("mysql");
 const sequelize = new Sequelize(process.env.DB_URL, {
+  username: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  port: process.env.DB_PORT,
+  database: process.env.DB,
   dialect: "postgres",
-  //logging: (err) => {console.log(err)},
   logging: false,
   dialectOptions: {
     ssl: {
@@ -18,6 +29,7 @@ const sequelize = new Sequelize(process.env.DB_URL, {
     },
   },
 });
+
 app.use(bodyParser.json());
 app.use(cors());
 
@@ -43,6 +55,7 @@ login_table.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    surname: DataTypes.STRING,
     validated: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
@@ -206,6 +219,7 @@ app.get("/DropTables", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+*/
 
 app.post("/createUser", async (req, res) => {
   //console.log("Ëntry for createUser");
@@ -441,6 +455,49 @@ app.post("/employee/delete", async (req, res) => {
     res
       .status(500)
       .json({ message: err.message, path: "/employee/delete", deleted: false });
+  }
+});*/
+
+app.post("/createUser", async (req, res) => {
+  console.log("Ëntry for createUser");
+  try {
+    var username = req.body.username;
+    var password = req.body.password;
+    var firstname = req.body.name;
+    var surname = req.body.surname;
+
+    password = getHashAndSalt(username, password);
+    var existingUser = await getUserInformation(username);
+    // console.log("CreateUser after getuserinformation");
+    /*if (existingUser.hasOwnProperty("error")) {
+      throw result.error;
+    }*/
+    //console.log(JSON.stringify(existingUser));
+    if (
+      existingUser.length != 0 &&
+      !(existingUser[0].username === "null") &&
+      !(existingUser[0].username === null)
+    ) {
+      res.status(409).json({
+        message: `Account already associated with '${username}'`,
+        registered: false,
+      });
+      return;
+    }
+    var result = await login_table
+      .create({
+        username: username,
+        password: password,
+        firstname: firstname,
+        surname: surname,
+      })
+      .then(
+        res
+          .status(201)
+          .json({ message: `Added user successfully`, registered: true }),
+      );
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
