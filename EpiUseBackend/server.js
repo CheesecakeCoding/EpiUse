@@ -497,7 +497,7 @@ app.post("/createUser", async (req, res) => {
           .json({ message: `Added user successfully`, registered: true }),
       );
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message, registered: true });
   }
 });
 
