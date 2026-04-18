@@ -17,188 +17,12 @@ const connection = mysql.createConnection(db_url);
   database: process.env.MYSQLDATABASE,
 } */
 
-const sequelize = new Sequelize(process.env.DB_URL, {
-  username: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  port: process.env.DB_PORT,
-  database: process.env.DB,
-  dialect: "postgres",
-  logging: false,
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false,
-    },
-  },
-});
-
 app.use(bodyParser.json());
 app.use(cors());
 
-//---  Table declarations and intialization
-
-class login_table extends Model {}
-login_table.init(
-  {
-    username: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      primaryKey: true,
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    company: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    firstname: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    surname: DataTypes.STRING,
-    validated: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-      allowNull: false,
-    },
-  },
-  { sequelize, modelName: "login_table", freezeTableName: true },
-);
-
-class employees extends Model {}
-employees.init(
-  {
-    username: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      primaryKey: true,
-    },
-    firstname: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    surname: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    alias: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    id: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    employeeID: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    salary: {
-      type: DataTypes.DOUBLE,
-      allowNull: false,
-    },
-    role: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    managerID: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    department: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    companyName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    companyID: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    isActive: {
-      type: DataTypes.BOOLEAN,
-    },
-    startDate: {
-      type: DataTypes.DATEONLY,
-      allowNull: false,
-    },
-    terminationDate: {
-      type: DataTypes.DATEONLY,
-      allowNull: true,
-    },
-  },
-  { sequelize, modelName: "employees", freezeTableName: true },
-);
-
-class roles extends Model {}
-roles.init(
-  {
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    companyID: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    roleID: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      primaryKey: true,
-    },
-  },
-  { sequelize, modelName: "roles", freezeTableName: true },
-);
-
-class companies extends Model {}
-companies.init(
-  {
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    companyID: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-    },
-    owner: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  },
-  { sequelize, modelName: "companies", freezeTableName: true },
-);
-
-sequelize.model.login_table;
-sequelize.model.companies;
-sequelize.model.roles;
-sequelize.model.employees;
-
-sequelize
-  .sync()
-  .then(() => {
-    console.log("Database connected");
-    //login_.sync();\
-    sequelize
-      .getQueryInterface()
-      .showAllSchemas()
-      .then(() => {
-        sequelize.sync();
-      })
-      .catch((err) => {
-        console.log("showAllSchemas ERROR", err);
-      });
-  })
-  .catch((err) => {
-    console.log(err);
-  });
-
 app.get("/TableCheck", async (req, res) => {
+  res.status(200).json({});
+  return;
   try {
     var ret = await sequelize.getQueryInterface().showAllTables();
     console.log(JSON.stringify(ret));
@@ -209,6 +33,8 @@ app.get("/TableCheck", async (req, res) => {
 });
 
 app.get("/DropTables", async (req, res) => {
+  res.status(200).json({});
+  return;
   try {
     var [result, metadata] = await sequelize.query(` 
           DROP TABLE IF EXISTS public.login_table;
@@ -265,6 +91,8 @@ app.post("/createUser", async (req, res) => {
 });*/
 
 app.post("/login", async (req, res) => {
+  res.status(200).json({});
+  return;
   //console.log(`Entry for login`);
   var token = createToken();
   //xxx Check token and return if mismatch
@@ -305,6 +133,8 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/company/create", async (req, res) => {
+  res.status(200).json({});
+  return;
   try {
     var { username, companyName } = req.body;
     var cmpID = createCompanyID(username, companyName);
@@ -328,6 +158,8 @@ app.post("/company/create", async (req, res) => {
 });
 
 app.post("/employee/create", async (req, res) => {
+  res.status(200).json({});
+  return;
   try {
     var {
       username,
@@ -391,6 +223,8 @@ app.post("/employee/create", async (req, res) => {
 });
 
 app.post("/employee/update", async (req, res) => {
+  res.status(200).json({});
+  return;
   try {
     var {
       username,
@@ -445,6 +279,8 @@ app.post("/employee/update", async (req, res) => {
 });
 
 app.post("/employee/delete", async (req, res) => {
+  res.status(200).json({});
+  return;
   try {
     var { username } = req.body;
     var ret = employees.destroy({ where: { username: `${username}` } });
@@ -461,6 +297,8 @@ app.post("/employee/delete", async (req, res) => {
 });
 
 app.post("/createUser", async (req, res) => {
+  res.status(200).json({});
+  return;
   try {
     var username = req.body.username;
     var password = req.body.password;
@@ -503,6 +341,8 @@ app.post("/createUser", async (req, res) => {
 });
 
 app.get("/employee/get", async (req, res) => {
+  res.status(200).json({});
+  return;
   try {
     var { username, companyID } = req.body;
     if (canViewEmployee(username)) {
@@ -522,6 +362,8 @@ app.get("/employee/get", async (req, res) => {
 });
 
 app.post("/role/create", async (req, res) => {
+  res.status(200).json({});
+  return;
   try {
     var { name, company } = req.body;
     var roleID = createRoleID(username, company);
@@ -545,6 +387,8 @@ app.post("/role/create", async (req, res) => {
 });
 
 app.post("/role/delete", async (req, res) => {
+  res.status(200).json({});
+  return;
   try {
     var { companyID, roleID } = req.body;
     var ret = roles.destroy({
@@ -562,6 +406,8 @@ app.post("/role/delete", async (req, res) => {
 });
 
 app.get("/role/get", async (req, res) => {
+  res.status(200).json({});
+  return;
   try {
     var { companyID } = req.body;
     var ret = getRoles(companyID);
