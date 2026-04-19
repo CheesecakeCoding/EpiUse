@@ -5,7 +5,14 @@ import NavDropdown from "react-bootstrap/NavDropdown";
 
 function TopNavbar() {
   return (
-    <Navbar bg="dark" data-bs-theme="dark">
+    <Navbar
+      bg="dark"
+      data-bs-theme="dark"
+      sticky="top"
+      style={{
+        width: "100%",
+      }}
+    >
       <Container>
         <Navbar.Brand href="#home">Navbar</Navbar.Brand>
         <Nav className="me-auto">

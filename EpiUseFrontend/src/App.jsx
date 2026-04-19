@@ -15,7 +15,7 @@ self.$RefreshReg$ = () => {};
 self.$RefreshSig$ = () => () => {};
 function App() {
   //--- flags used to determine which page to display;
-  const [needLogin, setNeedLogin] = useState(false);
+  const [needLogin, setNeedLogin] = useState(true);
   const [registering, setRegistering] = useState(false);
   const [dashboard, setDashboard] = useState(true);
   const [owner, setOwner] = useState(false);
@@ -62,12 +62,12 @@ function App() {
 
   return (
     <>
-      <div className="container LoginContainer">
+      <div className="container LoginContainer" maxwidth="100%">
         {needLogin && !registering && (
           <Login handleLogin={handleLogin} handleRegister={handleRegister} />
         )}
       </div>
-      <div className="container RegisterContainer">
+      <div className="container RegisterContainer" maxWidth="100%">
         {registering && <Register handleRegister={handleRegister} />}
       </div>
       <div className="container DashboardContainer">
