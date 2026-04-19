@@ -36,6 +36,57 @@ app.get("/createTables", async (req, res) => {
   }
 });
 
+app.get("/hierarchy", async (req, res) => {
+  try {
+    var { username, companyID } = req.body;
+    if (!canViewHierarchy()) {
+      res.status(201).json({
+        message: `User ${username} does not have access`,
+        data: [],
+        error: true,
+      });
+    }
+    var qry = `WITH RECURSIVE cte AS
+      (
+        SELECT employeeID, name, 1 as LEVEL, department, role, concat(name, " ", surname) as PATH FROM employees WHERE managerID IS NULL and companyID = '${companyID}'
+        UNION ALL
+        SELECT c.employeeID, c.name, cte.LEVEL + 1 as LEVEL, c.department, c.role, concat(cte.PATH, " -> ",c.name, " ", c.surname) FROM employees c JOIN cte
+        ON cte.employeeID=c.managerID 
+      )
+      SELECT name, level, department, role, PATH FROM cte order by department, level asc;`;
+    var result = await pool.query(qry);
+    res.status(200).json({
+      message: `Query executed successfully`,
+      data: result[0],
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message, path: "/hierarchy" });
+  }
+});
+
+app.get("/employeeTable", async (req, res) => {
+  try {
+    var { username, companyID } = req.body;
+    if (!canViewHierarchy()) {
+      res.status(201).json({
+        message: `User ${username} does not have access`,
+        data: [],
+        error: true,
+      });
+    }
+    var qry = `
+      select * from employees where companyID = '${companyID}'`;
+
+    var result = await pool.query(qry);
+    res.status(200).json({
+      message: `Query executed successfully`,
+      data: result[0],
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message, path: "/employeeTable" });
+  }
+});
+
 app.post("/employee/create", async (req, res) => {
   try {
     //console.log(req.body);
@@ -67,8 +118,8 @@ app.post("/employee/create", async (req, res) => {
       }
     }
     var existingUser = await getEmployeeInformation(username);
-    console.log(`${JSON.stringify(existingUser[0])}`);
-    console.log(`${existingUser == undefined || existingUser == ""}`);
+    // console.log(`${JSON.stringify(existingUser[0])}`);
+    // console.log(`${existingUser == undefined || existingUser == ""}`);
     if (!(existingUser == "")) {
       res.status(200).json({
         message: `Username ('${username}') alreaddy an employee at ${companyID}`,
@@ -102,7 +153,7 @@ app.post("/employee/update", async (req, res) => {
       username,
       firstname,
       surname,
-      id,
+      birthdate,
       salary,
       role,
       managerID,
@@ -130,17 +181,19 @@ app.post("/employee/update", async (req, res) => {
       });
       return;
     }
-
+    var qry = `UPDATE employees SET 
+        name = '${firstname}',
+        surname = '${surname}',
+        birthdate = '${birthdate}',
+        salary = ${salary},
+        role = '${role}',
+        managerID = '${managerID}',
+        department = '${department}'
+      WHERE email = '${username}'
+      limit 1;`;
+    console.log(qry);
     var ret = await pool.query(`
-      UPDATE employees SET 
-        firstname = '${firstname}',
-        surname = '${surname}
-        birthdate = '${birthdate},
-        salary = '${salary},
-        role = '${role},
-        managerID = '${managerID}
-        department = '${department}
-      WHERE username = '${username}'
+      
     `);
 
     res.status(201).json({
@@ -158,13 +211,10 @@ app.post("/employee/update", async (req, res) => {
 app.post("/employee/delete", async (req, res) => {
   try {
     var { username } = req.body;
-    var ret = pool.query(
-      `DELETE FROM employees where username = '${username}'`,
-    );
+    var ret = pool.query(`DELETE FROM employees where email = '${username}'`);
     res.status(201).json({
       message: `Deleted employee successfully`,
       deleted: true,
-      managerMSG: `${managerMsg}`,
     });
   } catch (err) {
     res
@@ -327,11 +377,10 @@ app.post("/role/delete", async (req, res) => {
 app.get("/role/get", async (req, res) => {
   try {
     var { companyID } = req.body;
-    ge;
-    var ret = getRoles(companyID);
+    var ret = await getRoles(companyID);
     res.status(201).json({
       message: `Completed role call successfully`,
-      roles: ret,
+      roles: ret[0],
     });
   } catch (err) {
     res
@@ -417,7 +466,7 @@ async function createEmployeeID(username, companyID) {
 
 function getSubString(the_string) {
   if (the_string.length >= 4) {
-    return text.substring(1, 4);
+    return the_string.substring(1, 4);
   } else {
     return pad(the_string, 4);
   }
@@ -522,9 +571,10 @@ async function createRolesTable() {
   try {
     pool.query(` 
       CREATE TABLE IF NOT EXISTS roles (
+       roleID INT AUTO_INCREMENT,
         role VARCHAR(50) not null,
-        company VARCHAR(60) not null,
-        roleID VARCHAR(9) not null
+        companyID VARCHAR(60) not null,
+        PRIMARY KEY(roleID)
       );
     `);
     return { created: true, message: "", table: "roles" };
@@ -537,6 +587,11 @@ async function dropAllTables() {
   pool.query(` 
       DROP TABLE IF EXISTS employees;
       DROP TABLE IF EXISTS roles; `);
+}
+
+function canViewHierarchy(username) {
+  //xxx Stub
+  return true;
 }
 
 try {
