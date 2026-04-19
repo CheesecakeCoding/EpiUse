@@ -1,6 +1,6 @@
 //const basePath = "http://localhost:5000";
 
-const basePath = "https://epiuse-production.up.railway.app:5000";
+const basePath = "https://epiuse-production.up.railway.app";
 
 const HEADER = { "Content-Type": "application/json" };
 

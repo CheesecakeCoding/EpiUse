@@ -277,11 +277,6 @@ app.post("/createUser", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   //console.log(`Entry for login`);
-  res.status(200).json({
-    message: `Login Successful`,
-    login: true,
-  });
-  return;
 
   var token = createToken();
   //xxx Check token and return if mismatch
@@ -305,10 +300,15 @@ app.post("/login", async (req, res) => {
         .json({ message: `Failed login: username not found`, login: false });
       return;
     }
+    var hash_new = crypto.createHash("sha256");
+    hash_new.update(`${username}`);
+    hash_new = hash_new.digest("hex");
     if (String(result[0].password) === String(password)) {
       res.status(200).json({
         message: `Login Successful`,
         login: true,
+        data: result[0],
+        sha: hash_new,
       });
       return;
     }

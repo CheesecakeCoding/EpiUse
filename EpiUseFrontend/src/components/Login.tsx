@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import FailedAlert from "./FailedAlert";
 import Button from "./Button";
 import { login } from "../services/login";
+import { getGravatar } from "../adapters/gravatar";
 
 interface LoginProps {
   handleLogin: () => void;
@@ -31,7 +32,9 @@ function Login({ handleLogin, handleRegister }: LoginProps) {
     }
     handleLogin(!result.login);
     console.log(`Result: ${JSON.stringify(result)}`);
-    window.setTimeout(() => {}, 1000000000);
+    var gravatar = await getGravatar(result.sha);
+    console.log(`gravatar ${gravatar}`);
+
     return result;
   }
 
