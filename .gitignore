@@ -2,3 +2,5 @@ EpiUseBackend/.env
 /EpiUseBackend/node_modules
 /EpiUseBackend/node_modules
 EpiUseBackend/node_modules/dotenv/lib/cli-options.js
+/EpiUseBackend/node_modules
+/EpiUseFrontend/node_modules

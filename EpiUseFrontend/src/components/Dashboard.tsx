@@ -1,11 +1,11 @@
-function CERoles() {
+function Dashboard() {
   return (
     <div className="container">
       <div className="row vh-100 align-items-center justify-content-center">
         <div className="col-sm-8 col-md-6 col-lg-4 bgwhite- rounded p-3 shadow">
           <div className="row justify-content-center mb-4">
             <div className="row justify-content-center">
-              <h1>CreateCompany</h1>
+              <h1>Header</h1>
             </div>
             <br />
             <br />
@@ -17,4 +17,4 @@ function CERoles() {
   );
 }
 
-export default CERoles;
+export default Dashboard;

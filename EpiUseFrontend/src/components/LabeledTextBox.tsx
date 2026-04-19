@@ -1,5 +1,5 @@
 interface LabledTextBoxProps {
-  type?: "text";
+  type?: "text" | "date" | "number";
   placeholder?: String;
   id: String;
   className?: String;
