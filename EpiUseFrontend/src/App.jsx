@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Login from "./components/Login.tsx";
 import Register from "./components/Register.tsx";
-//import Dashboard from "./components/Dashboard.tsx";
+import Dashboard from "./components/Dashboard.tsx";
 //import CreateCompany from "./components/CreateCompany.tsx";
 import CreateEmployee from "./components/CreateEmployee.tsx";
 //import ViewHierarchy from "./components/ViewHierarchy.tsx";
@@ -17,8 +17,8 @@ function App() {
   //--- flags used to determine which page to display;
   const [needLogin, setNeedLogin] = useState(false);
   const [registering, setRegistering] = useState(false);
-  const [dashboard, setDashboard] = useState(false);
-  const [createCompany, setcreateCompany] = useState(false);
+  const [dashboard, setDashboard] = useState(true);
+  const [owner, setOwner] = useState(false);
   const [createEmployee, setcreateEmployee] = useState(true);
   const [viewHierarchy, setviewHierarchy] = useState(false);
   const [viewTable, setviewTable] = useState(false);
@@ -72,22 +72,6 @@ function App() {
       </div>
       <div className="container DashboardContainer">
         {dashboard && <Dashboard />}
-      </div>
-      <div className="container createCompanyContainer">
-        {createCompany && <CreateCompany />}
-      </div>
-      <div className="container createEmployeeContainer">
-        {createEmployee && <CreateEmployee />}
-      </div>
-      <div className="container viewHierarchyContainer">
-        {viewHierarchy && <ViewHierarchy />}
-      </div>
-      <div className="container viewTableContainer">
-        {viewTable && <ViewTable />}
-      </div>
-      <div className="container CERolesContainer">{CERoles && <CERoles />}</div>
-      <div className="container EEmployeeDataContainer">
-        {EEmployeeData && <EEmployeeData />}
       </div>
     </>
   );
