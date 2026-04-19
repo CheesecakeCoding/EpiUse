@@ -1,171 +1,49 @@
 require("dotenv").config();
+//require("dotenv").config({ path: ".env.new" });
 const { Sequelize, DataTypes, Model } = require("sequelize");
 const crypto = require("crypto");
 const express = require("express");
+const app = express();
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const app = express();
-const port = process.env.PORT || 3000;
-//const mysql = require("mysql2");
-//const db_url = `mysql://${process.env.MYSQLUSER}:${process.env.MYSQL_ROOT_PASSWORD}@${process.env.RAILWAY_PRIVATE_DOMAIN}:3306/${process.env.MYSQL_DATABASE}`;
-//const connection = mysql.createConnection(db_url);
+const PORT = process.env.PORT || 3000;
+const mysql = require("mysql2");
 
-/*{
-  host: process.env.MYSQLHOST,
-  user: process.env.MYSQLUSER,
-  password: process.env.MYSQLPASSWORD,
-  database: process.env.MYSQLDATABASE,
-} */
+const pool = mysql
+  .createPool({
+    host: process.env.MYSQLHOST,
+    user: process.env.MYSQLUSER,
+    password: process.env.MYSQLPASSWORD,
+    insecureAuth: true,
+    database: process.env.MYSQL_DATABASE,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+  })
+  .promise();
 
+module.exports = pool;
+
+app.use(express.json());
 app.use(bodyParser.json());
 app.use(cors());
 
-app.get("/TableCheck", async (req, res) => {
-  res.status(200).json({});
-  return;
+app.get("/createTables", async (req, res) => {
   try {
-    var ret = await sequelize.getQueryInterface().showAllTables();
-    console.log(JSON.stringify(ret));
-    res.status(200).json(ret);
-  } catch (err) {
-    res.status(500).json({ error: err });
-  }
-});
-
-app.get("/DropTables", async (req, res) => {
-  res.status(200).json({});
-  return;
-  try {
-    var [result, metadata] = await sequelize.query(` 
-          DROP TABLE IF EXISTS public.login_table;
-          DROP TABLE IF EXISTS public.employees;
-          DROP TABLE IF EXISTS public.roles;
-          DROP TABLE IF EXISTS public.companies;
-        `);
-    console.log(result);
-
-    res.json({ Status: "ok", res: `deleted tables successfully` });
+    await createTables();
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-/*
-app.post("/createUser", async (req, res) => {
-  //console.log("Ëntry for createUser");
-  try {
-    var username = req.body.username;
-    var password = req.body.password;
-    var firstname = req.body.name;
-
-    var existingUser = await getUserInformation(username);
-    // console.log("CreateUser after getuserinformation");
-   
-    //console.log(JSON.stringify(existingUser));
-    if (
-      existingUser.length != 0 &&
-      !(existingUser[0].username === "null") &&
-      !(existingUser[0].username === null)
-    ) {
-      res.status(200).json({
-        message: `Account already associated with '${username}'`,
-        registered: false,
-      });
-      return;
-    }
-    password = getHashAndSalt(username, password);
-    var result = await login_table
-      .create({
-        username: username,
-        password: password,
-        firstname: firstname,
-      })
-      .then(
-        res
-          .status(201)
-          .json({ message: `Added user successfully`, registered: true }),
-      );
-  } catch (err) {
-    res.status(500).json({ message: err.message, registered: false });
-  }
-});*/
-
-app.post("/login", async (req, res) => {
-  res.status(200).json({});
-  return;
-  //console.log(`Entry for login`);
-  var token = createToken();
-  //xxx Check token and return if mismatch
-  try {
-    var { username, password } = req.body;
-
-    password = getHashAndSalt(username, password);
-    var result = await getUserInformation(username);
-    //console.log(`login res: ${JSON.stringify(result)}`);
-    if (result.hasOwnProperty("error")) {
-      res.status(500).json({
-        message: `Failed login: error with db`,
-        login: false,
-        error: result.error,
-      });
-      return;
-    }
-    if (result.length == 0) {
-      res
-        .status(404)
-        .json({ message: `Failed login: username not found`, login: false });
-      return;
-    }
-    if (String(result[0].password) === String(password)) {
-      res.status(200).json({
-        message: `Login Successful`,
-        login: true,
-      });
-      return;
-    }
-    res.status(200).json({
-      message: `Failed login: username and password mismatch`,
-      login: false,
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message, login: false, path: "login" });
-  }
-});
-
-app.post("/company/create", async (req, res) => {
-  res.status(200).json({});
-  return;
-  try {
-    var { username, companyName } = req.body;
-    var cmpID = createCompanyID(username, companyName);
-    var result = await companies
-      .create({
-        username: username,
-        companyName: companyName,
-        companyID: cmpID,
-      })
-      .then(
-        res.status(201).json({
-          message: `Added company successfully`,
-          created: true,
-        }),
-      );
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: err.message, path: "company/create", created: false });
-  }
-});
-
 app.post("/employee/create", async (req, res) => {
-  res.status(200).json({});
-  return;
   try {
+    //console.log(req.body);
     var {
       username,
       firstname,
       surname,
-      id,
+      birthdate,
       salary,
       role,
       managerID,
@@ -175,10 +53,12 @@ app.post("/employee/create", async (req, res) => {
     var managerMsg = "Assigned Manager successfully";
 
     if (
-      managerID === undefined ||
-      managerID === "" ||
-      managerID === null ||
-      managerID === "null"
+      !(
+        managerID === undefined ||
+        managerID === "" ||
+        managerID === null ||
+        managerID === "null"
+      )
     ) {
       managerMsg = "No manager to assign";
       if (isValidManager(username, managerID)) {
@@ -187,44 +67,36 @@ app.post("/employee/create", async (req, res) => {
       }
     }
     var existingUser = await getEmployeeInformation(username);
-    if (existingUser.length != 0) {
+    console.log(`${JSON.stringify(existingUser[0])}`);
+    console.log(`${existingUser == undefined || existingUser == ""}`);
+    if (!(existingUser == "")) {
       res.status(200).json({
-        message: `Username ('${username}') assigned to existing employee`,
-        created: false,
+        message: `Username ('${username}') alreaddy an employee at ${companyID}`,
+        updated: false,
       });
       return;
     }
-    var employeeID = createEmployeeID(username, companyID);
-    var result = await employees
-      .create({
-        username: username,
-        firstname: firstname,
-        surname: surname,
-        id: id,
-        salary: salary,
-        role: role,
-        managerID: managerID,
-        department: department,
-        companyID: companyID,
-        employeeID: employeeID,
-      })
-      .then(
-        res.status(201).json({
-          message: `Added employee successfully`,
-          created: true,
-          managerMSG: `${managerMsg}`,
-        }),
-      );
+    var employeeID = await createEmployeeID(firstname, companyID);
+    var qry = `
+      INSERT INTO employees (name, surname, alias, birthdate, employeeID, salary,role, managerID, department, companyID, email, isActive, startDate, terminationDate) 
+      VALUES  ('${firstname}', '${surname}', null ,'${birthdate}', '${employeeID}',${salary}, '${role}', null, '${department}', '${companyID}', '${username}', false, now(), null)
+    `;
+    console.log(qry);
+    var ret = await pool.query(qry);
+
+    res.status(201).json({
+      message: `Created employee successfully`,
+      created: true,
+      managerMSG: `${managerMsg}`,
+    });
   } catch (err) {
     res
       .status(500)
-      .json({ message: err.message, path: "employee/create", created: false });
+      .json({ message: err.message, path: "/employee/create", created: false });
   }
 });
 
 app.post("/employee/update", async (req, res) => {
-  res.status(200).json({});
-  return;
   try {
     var {
       username,
@@ -258,14 +130,19 @@ app.post("/employee/update", async (req, res) => {
       });
       return;
     }
-    existingUser.firstname = firstname;
-    existingUser.surname = surname;
-    existingUser.birthdate = birthdate;
-    existingUser.salary = salary;
-    existingUser.role = role;
-    existingUser.managerID = managerID;
-    existingUser.department = department;
-    await existingUser.save();
+
+    var ret = await pool.query(`
+      UPDATE employees SET 
+        firstname = '${firstname}',
+        surname = '${surname}
+        birthdate = '${birthdate},
+        salary = '${salary},
+        role = '${role},
+        managerID = '${managerID}
+        department = '${department}
+      WHERE username = '${username}'
+    `);
+
     res.status(201).json({
       message: `Updated employee successfully`,
       created: true,
@@ -279,11 +156,11 @@ app.post("/employee/update", async (req, res) => {
 });
 
 app.post("/employee/delete", async (req, res) => {
-  res.status(200).json({});
-  return;
   try {
     var { username } = req.body;
-    var ret = employees.destroy({ where: { username: `${username}` } });
+    var ret = pool.query(
+      `DELETE FROM employees where username = '${username}'`,
+    );
     res.status(201).json({
       message: `Deleted employee successfully`,
       deleted: true,
@@ -297,52 +174,98 @@ app.post("/employee/delete", async (req, res) => {
 });
 
 app.post("/createUser", async (req, res) => {
-  res.status(200).json({});
-  return;
   try {
+    //console.log(req.body);
     var username = req.body.username;
     var password = req.body.password;
     var firstname = req.body.name;
     var surname = req.body.surname;
-
-    password = getHashAndSalt(username, password);
+    var qry = "";
     var existingUser = await getUserInformation(username);
-    // console.log("CreateUser after getuserinformation");
-    /*if (existingUser.hasOwnProperty("error")) {
-      throw result.error;
-    }*/
-    //console.log(JSON.stringify(existingUser));
-    if (
-      existingUser.length != 0 &&
-      !(existingUser[0].username === "null") &&
-      !(existingUser[0].username === null)
-    ) {
+    var ret = [{ username: "", password: "", firstname: "", surname: "" }];
+    //console.log(`before if `);
+    //console.log(`existingUser: ${existingUser}`);
+    console.log(`len: ${JSON.stringify(existingUser)}`);
+    console.log(`username: ${existingUser.username}`);
+    if (!(existingUser.username === null)) {
+      //console.log(`in if`);
       res.status(409).json({
         message: `Account already associated with '${username}'`,
         registered: false,
       });
       return;
     }
-    var result = await login_table
-      .create({
-        username: username,
-        password: password,
-        firstname: firstname,
-        surname: surname,
-      })
-      .then(
+    //console.log(`after if`);
+    password = getHashAndSalt(username, password);
+    qry = `INSERT INTO login_table(username, password, firstname, surname) VALUES ('${username}','${password}','${firstname}', '${surname}');`;
+
+    //console.log(`before pool`);
+    ret = await pool.query(qry);
+    //console.log(ret[0]);
+    //console.log(`createUser ${JSON.stringify(ret[0])}`);
+    if ((ret.affectedRows = 1))
+      res.status(201).json({
+        message: `Added user successfully`,
+        registered: true,
+      });
+    else {
+      res.status(200).json({
+        message: `Something unknown went wrong`,
+        registered: false,
+      });
+    }
+
+    /*.then(
         res
           .status(201)
           .json({ message: `Added user successfully`, registered: true }),
-      );
+      );*/
   } catch (err) {
-    res.status(500).json({ message: err.message, registered: false });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/login", async (req, res) => {
+  //console.log(`Entry for login`);
+  var token = createToken();
+  //xxx Check token and return if mismatch
+  try {
+    var { username, password } = req.body;
+
+    password = getHashAndSalt(username, password);
+    var result = await getUserInformation(username);
+    //console.log(`login res: ${JSON.stringify(result)}`);
+    if (result.hasOwnProperty("error")) {
+      res.status(500).json({
+        message: `Failed login: error with db`,
+        login: false,
+        error: result.error,
+      });
+      return;
+    }
+    if (result[0].username == null) {
+      res
+        .status(404)
+        .json({ message: `Failed login: username not found`, login: false });
+      return;
+    }
+    if (String(result[0].password) === String(password)) {
+      res.status(200).json({
+        message: `Login Successful`,
+        login: true,
+      });
+      return;
+    }
+    res.status(200).json({
+      message: `Failed login: username and password mismatch`,
+      login: false,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message, login: false, path: "login" });
   }
 });
 
 app.get("/employee/get", async (req, res) => {
-  res.status(200).json({});
-  return;
   try {
     var { username, companyID } = req.body;
     if (canViewEmployee(username)) {
@@ -362,23 +285,15 @@ app.get("/employee/get", async (req, res) => {
 });
 
 app.post("/role/create", async (req, res) => {
-  res.status(200).json({});
-  return;
   try {
     var { name, company } = req.body;
     var roleID = createRoleID(username, company);
-    var result = await roles
-      .create({
-        name: name,
-        roleID: roleID,
-        company: company,
-      })
-      .then(
-        res.status(201).json({
-          message: `Added role successfully`,
-          created: true,
-        }),
-      );
+    var result = await pool.query(
+      `INSERT INTO roles(name, roleID, companyID) VALUES ('${name}','${roleID}','${company}')`,
+    );
+    var ret = await pool.query(
+      `SELECT * FROM roles where companyID = '${company}'`,
+    );
   } catch (err) {
     res
       .status(500)
@@ -387,13 +302,11 @@ app.post("/role/create", async (req, res) => {
 });
 
 app.post("/role/delete", async (req, res) => {
-  res.status(200).json({});
-  return;
   try {
     var { companyID, roleID } = req.body;
-    var ret = roles.destroy({
-      where: { companyID: companyID, roleID: roleID },
-    });
+    var ret = await pool.query(
+      `delete from roles where companyID = '${companyID}' and roleID = '${roleID}'`,
+    );
     res.status(201).json({
       message: `Deleted role successfully`,
       deleted: true,
@@ -406,10 +319,9 @@ app.post("/role/delete", async (req, res) => {
 });
 
 app.get("/role/get", async (req, res) => {
-  res.status(200).json({});
-  return;
   try {
     var { companyID } = req.body;
+    ge;
     var ret = getRoles(companyID);
     res.status(201).json({
       message: `Completed role call successfully`,
@@ -422,17 +334,6 @@ app.get("/role/get", async (req, res) => {
   }
 });
 
-/*Just boiler plate for an endpoint :D
-app.get("/endpoint", async(req, res) => {
-  try{
-    
-      
-  } catch (err) {
-    res.status(500).json({error: err.message, path: 'endpoint'});
-  }
-})
-*/
-
 //--- Helper funcitons
 function getHashAndSalt(username, password) {
   //console.log(`Hash and Salt entry`);
@@ -443,17 +344,32 @@ function getHashAndSalt(username, password) {
 }
 
 async function getUserInformation(username) {
+  var res = [
+    {
+      username: null,
+      passwword: "",
+      company: null,
+      firstname: "",
+      surname: "",
+    },
+  ];
+  //console.log(`username: ${username}`);
   try {
-    var result = await login_table.findAll({
-      attributes: ["username", "password"],
-      where: { username: `${username}` },
-    });
-
-    //console.log(`EH: ${JSON.stringify(result)}`);
-
-    //console.log(result[0].password);
-
-    return result;
+    var qry = `SELECT * from login_table where username='${username}';`;
+    //console.log(qry);
+    var resp = await pool.query(qry);
+    resp = resp[0];
+    //console.log(`res: '${JSON.stringify(resp[0])}'`);
+    //console.log(`resp: ${Object.getOwnPropertyNames(resp)}`);
+    //console.log(`resp: ${JSON.stringify(resp)}`);
+    //console.log(`resp: ${resp._results}`);
+    //console.log("getUserInformation before if");
+    if (resp === undefined || resp == "") {
+      //console.log("getUserInformation if");
+      resp = res;
+    }
+    //console.log(`getUserInformation '${resp}'`);
+    return resp[0];
   } catch (err) {
     return { error: err.message, path: "getUserInformation" };
   }
@@ -461,10 +377,11 @@ async function getUserInformation(username) {
 
 async function getEmployeeInformation(username) {
   try {
-    var result = await employees.findAll({
-      where: { username: `${username}` },
-    });
-    return result;
+    var res = await pool.query(
+      `SELECT * from employees where email='${username}'`,
+    );
+    console.log(`getEmployeeInformation ${JSON.stringify(res[0])}`);
+    return res[0];
   } catch (err) {
     return { error: err.message, path: "getUserInformation" };
   }
@@ -476,46 +393,67 @@ function createToken() {
 
 async function isValidManager(username, managerID) {
   var TO_RET = false;
-  /*var QRY = `with EmployeeHierarchy as (
-    SELECT 
-  )`;*/
-  var res = await employees.findAll({
-    attributes: ["employeeID"],
-    where: { username: `${username}` },
-  });
-  if (res.length > 0 && STRING(res[0].employeeID) != STRING(managerID)) {
-    TO_RET = true;
-  }
+
   return TO_RET;
 }
 
 async function createEmployeeID(username, companyID) {
-  var res = await employees.findAll({
-    where: { companyID: companyID },
-  });
-  return res.length;
+  var first = getSubString(username);
+  var res = await pool.query(
+    `SELECT count(*) as num from employees where employeeID like '${first}%'`,
+  );
+  var number = 1;
+  if (res.length > 0) {
+    number = res[0].num + 1;
+  }
+  return `${first}${pad(String(number))}`;
+}
+
+function getSubString(the_string) {
+  if (the_string.length >= 4) {
+    return text.substring(1, 4);
+  } else {
+    return pad(the_string, 4);
+  }
+}
+
+function pad(the_string, count) {
+  the_string = `0${the_string}`;
+  if (the_string.length < count) {
+    the_string = padd(the_string, count);
+  }
+  return the_string;
 }
 
 async function createCompanyID(username, company) {
-  var res = await companies.findAll({});
-  return res.length;
+  var code = String.replace(company, " ");
+  code = pad(CommandFailedEvent, 4);
+  var res = await pool.query(
+    `SELECT * from companies where companyID like '${code}%'`,
+  );
+  return `${code}${pad(res.length, 4)}`;
 }
 
 async function createRoleID(username, companyID) {
-  var res = await roles.findAll({ where: { companyID: companyID } });
+  var res = await pool.query(
+    `SELECT * from roles where companyID = '${companyID}'`,
+  );
   return res.length;
 }
 
 async function getRoles(companyID) {
-  var ret = await roles.findAll({ where: { companyID: companyID } });
+  var ret = await pool.query(
+    `SELECT * from roles where companyID = '${companyID}'`,
+  );
   return ret;
 }
 
 async function getEmployees(companyID) {
-  //{ where: { companyID: companyID } }
-  var ret = await employees.findAll();
-  ret = await JSON.stringify(ret);
-  return ret;
+  var rowNue;
+  var res = await pool.query(
+    `SELECT * from employees where companyID = '${companyID}'`,
+  );
+  return res;
 }
 
 async function canViewEmployee(username) {
@@ -523,6 +461,82 @@ async function canViewEmployee(username) {
   return true;
 }
 
-app.listen(port, async () => {
-  console.log(`App listening at http://localhost:${port}`);
-});
+async function createTables() {
+  var tables = [];
+  tables[0] = await createLoginTable();
+  tables[1] = await createEmployeesTable();
+  tables[2] = await createRolesTable();
+
+  console.log(tables);
+}
+async function createLoginTable() {
+  try {
+    pool.query(` 
+      CREATE TABLE IF NOT EXISTS login_table (
+        username VARCHAR(150) PRIMARY KEY,
+        password VARCHAR(64) not null,
+        company VARCHAR(255),
+        firstname VARCHAR(50) not null,
+        surname VARCHAR(60) not null
+      );
+      `);
+    return { created: true, message: "", table: "login_table" };
+  } catch (err) {
+    return { created: false, message: err.message, table: "login_table" };
+  }
+}
+
+async function createEmployeesTable() {
+  try {
+    pool.query(` 
+      CREATE TABLE IF NOT EXISTS employees (
+          name VARCHAR(50) not null,
+          surname VARCHAR(60) not null,
+          alias VARCHAR(50),
+          birthdate DATE not null,
+          employeeID VARCHAR(9) not null,
+          salary double CHECK (salary > 0),
+          role VARCHAR(50),
+          managerID VARCHAR(9),
+          department VARCHAR(50),
+          companyID VARCHAR(15) not null,
+          email VARCHAR(150) not null,
+          isActive boolean,
+          startDate date not null,
+          terminationDate date
+        );
+      `);
+    return { created: true, message: "", table: "employees" };
+  } catch (err) {
+    return { created: false, message: err.message, table: "employees" };
+  }
+}
+
+async function createRolesTable() {
+  try {
+    pool.query(` 
+      CREATE TABLE IF NOT EXISTS roles (
+        role VARCHAR(50) not null,
+        company VARCHAR(60) not null,
+        roleID VARCHAR(9) not null
+      );
+    `);
+    return { created: true, message: "", table: "roles" };
+  } catch (err) {
+    return { created: false, message: err.message, table: "roles" };
+  }
+}
+
+async function dropAllTables() {
+  pool.query(` 
+      DROP TABLE IF EXISTS employees;
+      DROP TABLE IF EXISTS roles; `);
+}
+
+try {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT} `));
+  //dropAllTables();
+  createTables();
+} catch (err) {
+  console.log(err.message);
+}
