@@ -1,4 +1,7 @@
-const basePath = "https://epiusebackend.onrender.com:5000";
+//const basePath = "http://localhost:5000";
+
+const basePath = "https://epiuse-production.up.railway.app:5000";
+
 const HEADER = { "Content-Type": "application/json" };
 
 export async function get(endpoint, body) {
