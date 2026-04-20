@@ -33,7 +33,7 @@ function Login({
     formdata.append("LoginUsername", `${username}`);
     formdata.append("LoginPassword", `${password}`);
     var result = await login(formdata);
-    console.log(`Register Res ${result}`);
+    console.log(`Register Res ${JSON.stringify(result)}`);
     if (!result.hasOwnProperty("login")) {
       setAlertVisible(true);
       handleLogin(true);

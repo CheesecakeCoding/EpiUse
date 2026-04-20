@@ -34,7 +34,7 @@ function TopNavbar({
       }}
     >
       <Navbar.Brand>
-        <img src={profilepic}></img>
+        <img src={profilepic} border-radius="50%;"></img>
         Welcome, {name} {lastname}{" "}
       </Navbar.Brand>
       <Nav className="me-auto">
