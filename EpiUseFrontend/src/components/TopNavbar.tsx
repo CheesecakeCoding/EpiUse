@@ -6,10 +6,24 @@ import NavDropdown from "react-bootstrap/NavDropdown";
 interface TopNavbarProps {
   name: string;
   lastname: string;
-  setTableView: () => void;
+  profilepic: string;
+  handleTableView: (val: boolean) => void;
+  handleHierarchyView: (val: boolean) => void;
+  handleUpdateInfo: (val: boolean) => void;
+  handleCreateEmployee: (val: boolean) => void;
+  handleLogin: (val: boolean) => void;
 }
 
-function TopNavbar({ name, lastname }: TopNavbarProps) {
+function TopNavbar({
+  name,
+  lastname,
+  profilepic,
+  handleTableView,
+  handleHierarchyView,
+  handleUpdateInfo,
+  handleCreateEmployee,
+  handleLogin,
+}: TopNavbarProps) {
   return (
     <Navbar
       bg="dark"
@@ -19,17 +33,19 @@ function TopNavbar({ name, lastname }: TopNavbarProps) {
         width: "100%",
       }}
     >
-      <Container>
-        <Navbar.Brand>
-          Welcome, {name} {lastname}{" "}
-        </Navbar.Brand>
-        <Nav className="me-auto">
-          <Nav.Link>New Employee</Nav.Link>
-          <Nav.Link>Table View</Nav.Link>
-          <Nav.Link>Hierarchy</Nav.Link>
-          <Nav.Link>Edit details</Nav.Link>
-        </Nav>
-      </Container>
+      <Navbar.Brand>
+        <img src={profilepic}></img>
+        Welcome, {name} {lastname}{" "}
+      </Navbar.Brand>
+      <Nav className="me-auto">
+        <Nav.Link onClick={() => handleCreateEmployee(true)}>
+          New Employee
+        </Nav.Link>
+        <Nav.Link onClick={() => handleTableView(true)}>Table View</Nav.Link>
+        <Nav.Link onClick={() => handleHierarchyView(true)}>Hierarchy</Nav.Link>
+        <Nav.Link onClick={() => handleUpdateInfo(true)}>Edit details</Nav.Link>
+        <Nav.Link onClick={() => handleLogin(true)}>Log out</Nav.Link>
+      </Nav>
     </Navbar>
   );
 }

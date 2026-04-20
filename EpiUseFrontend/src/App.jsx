@@ -11,6 +11,7 @@ import CreateEmployee from "./components/CreateEmployee.tsx";
 //import CERoles from "./components/CERoles.tsx";
 //import EEmployeeData from "./components/EEmployeeData.tsx";
 
+import { getEmployees } from "./services/CRUDEmployee";
 self.$RefreshReg$ = () => {};
 self.$RefreshSig$ = () => () => {};
 function App() {
@@ -30,8 +31,9 @@ function App() {
     lastname: "",
     company: "",
     sha256: "",
-    profilepic: "",
+    profilepic: "/oops/",
   });
+  const [tableData, setTableData] = useState({});
   //--- Assigning functions to manipulate the above states across different components
   function handleLogin(val) {
     setNeedLogin(val);
@@ -65,7 +67,7 @@ function App() {
           />
         )}
       </div>
-      <div className="container RegisterContainer" maxWidth="100%">
+      <div className="container RegisterContainer" maxwidth="100%">
         {registering && <Register handleRegister={handleRegister} />}
       </div>
       <div className="container DashboardContainer">
@@ -77,6 +79,7 @@ function App() {
             company={company}
             sha256={sha256}
             profilepic={profilepic}
+            handleLogin={handleLogin}
           />
         )}
       </div>

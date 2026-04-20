@@ -1,7 +1,35 @@
 import LabledTextBox from "./LabeledTextBox.tsx";
 import LabledTextBoxProps from "./LabeledTextBox.tsx";
+import Button from "./Button";
+import { createEmployee } from "../services/CRUDEmployee";
+interface CreateEmployeeProps {
+  username: string;
+  companyID: string;
+}
 
-function CreateEmployee() {
+function CreateEmployee({ username, companyID }: CreateEmployeeProps) {
+  async function handleCreateEmployee(
+    name: string,
+    surname: string,
+    email: string,
+    birthdate: Date,
+    salary: number,
+    role: string,
+    department: string,
+    username: string,
+  ) {
+    var formdata = new FormData();
+    formdata.append("username", `${email}`);
+    formdata.append("firstname", `${name}`);
+    formdata.append("surname", `${surname}`);
+    formdata.append("birthdate", `${birthdate}`);
+    formdata.append("salary", `${salary}`);
+    formdata.append("role", `${role}`);
+    formdata.append("managerID", "null");
+    formdata.append("department", `${department}`);
+    formdata.append("companyID", `${companyID}`);
+    var result = await createEmployee(formdata);
+  }
   return (
     <div className="container">
       <div className="row vh-100 align-items-center justify-content-center">
@@ -25,7 +53,7 @@ function CreateEmployee() {
               <LabledTextBox
                 type="text"
                 placeholder="Last Name"
-                id="CreateEmployeeName"
+                id="CreateEmployeeLastame"
               >
                 Last Name
               </LabledTextBox>
@@ -36,7 +64,6 @@ function CreateEmployee() {
               >
                 Email
               </LabledTextBox>
-
               <LabledTextBox
                 type="date"
                 placeholder="Birthdate"
@@ -65,6 +92,28 @@ function CreateEmployee() {
               >
                 Department
               </LabledTextBox>
+              <br />
+              <div className="d-flex flex-row-reverse p-3 float-right">
+                <Button
+                  onClick={() => {
+                    handleCreateEmployee(
+                      document.getElementById("CreateEmployeeName").value,
+                      document.getElementById("CreateEmployeeLastame").value,
+                      document.getElementById("CreateEmployeeEmail").value,
+                      document.getElementById("CreateEmployeeBirthdate").value,
+                      document.getElementById("CreateEmployeeSalary").value,
+                      document.getElementById("CreateEmployeeRole").value,
+                      document.getElementById("CreateEmployeeDepartment").value,
+                      username,
+                    );
+                  }}
+                  block="btn-block"
+                  float="float-right"
+                  type="button"
+                >
+                  Create
+                </Button>
+              </div>
             </div>
           </div>
           <br />

@@ -1,4 +1,4 @@
-import LabledTextBoxProps from "./LabeledTextBox.tsx";
+import LabledTextBox from "./LabeledTextBox.tsx";
 import Button from "./Button";
 import { register } from "../services/register";
 
@@ -28,10 +28,10 @@ function Register({ handleRegister }: RegisterProps) {
       return;
     }
     if (!result.registered) {
-      handleRegister(false);
+      handleRegister(true);
     }
     //xxx  Registering was not successful
-    handleRegister(true);
+    handleRegister(false);
     console.log(`Result: ${JSON.stringify(result)}`);
     return result;
   }
@@ -47,23 +47,13 @@ function Register({ handleRegister }: RegisterProps) {
             <br />
             <div></div>
             <br />
-            <LabledTextBoxProps id="RegisterName"> Name </LabledTextBoxProps>
-            <LabledTextBoxProps id="RegisterSurname">
-              {" "}
-              Surname{" "}
-            </LabledTextBoxProps>
-            <LabledTextBoxProps id="RegisterUsername">
-              {" "}
-              Email{" "}
-            </LabledTextBoxProps>
-            <LabledTextBoxProps id="RegisterPassword">
-              {" "}
-              Password{" "}
-            </LabledTextBoxProps>
-            <LabledTextBoxProps id="RegisterConfirmPass">
-              {" "}
-              Confirm Password{" "}
-            </LabledTextBoxProps>
+            <LabledTextBox id="RegisterName"> Name </LabledTextBox>
+            <LabledTextBox id="RegisterSurname"> Surname </LabledTextBox>
+            <LabledTextBox id="RegisterUsername"> Email </LabledTextBox>
+            <LabledTextBox id="RegisterPassword"> Password </LabledTextBox>
+            <LabledTextBox id="RegisterConfirmPass">
+              Confirm Password
+            </LabledTextBox>
           </div>
           <br />
 
