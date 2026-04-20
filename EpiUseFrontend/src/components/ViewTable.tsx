@@ -1,8 +1,7 @@
 import { getEmployees } from "../services/CRUDEmployee";
 import { useState } from "react";
 interface ViewTableProps {
-  username: string;
-  basedata: any;
+  username: string | any;
 }
 async function populateTable(username: string, setData: any) {
   var newData = await getEmployees(username);
@@ -10,11 +9,11 @@ async function populateTable(username: string, setData: any) {
   console.log(newData);
 }
 
-function ViewTable({ username, basedata }: ViewTableProps) {
-  const [data, setData] = useState(basedata);
-  //populateTable(username, setData);
-  //
-  console.log(data);
+function ViewTable({ username }: ViewTableProps) {
+  const [tableData, setData] = useState([]);
+  function handleData(val: any) {
+    setData(val);
+  }
   return (
     <div className="container flex">
       <div>
@@ -30,6 +29,11 @@ function ViewTable({ username, basedata }: ViewTableProps) {
               <th>ManagerID</th>
               <th>Department</th>
               <th>Email</th>
+              <th>
+                <button onClick={() => populateTable(username, handleData)}>
+                  Refresh
+                </button>
+              </th>
             </tr>
           </thead>
           <tbody></tbody>

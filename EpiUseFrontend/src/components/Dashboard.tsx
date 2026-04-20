@@ -29,6 +29,7 @@ function Dashboard({
   const [hierarchyView, sethierarchyView] = useState(false);
   const [createEmployee, setcreateEmployee] = useState(false);
   const [updateInfo, setupdateInfo] = useState(false);
+
   function handleTableView(val: any) {
     setTableView(val);
     sethierarchyView(!val);
@@ -77,9 +78,7 @@ function Dashboard({
           ></CreateEmployee>
         )}
 
-        {tableView && (
-          <ViewTable basedata={[{}]} username={username}></ViewTable>
-        )}
+        {tableView && <ViewTable username={username}></ViewTable>}
         {hierarchyView && <ViewHierarchy username={username}></ViewHierarchy>}
 
         {false && updateInfo && <EditProfile username={username}></EditProfile>}
