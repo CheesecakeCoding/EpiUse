@@ -1,6 +1,6 @@
-const basePath = "http://localhost:5000";
+//const basePath = "http://localhost:5000";
 
-//const basePath = "https://epiuse-production.up.railway.app";
+const basePath = "https://epiuse-production.up.railway.app";
 
 const HEADER = { "Content-Type": "application/json" };
 
@@ -15,12 +15,15 @@ export async function get(endpoint, body) {
 }
 
 export async function post(endpoint, body) {
+  //console.log(`API POST ENTER`);
   var response = await fetch(`${basePath}/${endpoint}`, {
     method: "POST",
     body: body && JSON.stringify(body),
     headers: new Headers(HEADER),
   });
+  //console.log(`API fetch EXIT`);
   var body = await response.json();
+  //console.log(`API POST EXIT`);
   return body;
 }
 

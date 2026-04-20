@@ -22,7 +22,7 @@ function App() {
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [lastname, setLastname] = useState("");
-  const [company, setCompany] = useState("");
+  const [companyID, setCompany] = useState("");
   const [sha256, setsha256] = useState("");
   const [profilepic, setprofilepic] = useState("");
   const [userDetails, setUserDetails] = useState({
@@ -47,12 +47,13 @@ function App() {
   }
 
   function handleUserDetails(val) {
+    console.log(val);
     setUserDetails(val);
     setUsername(val.username);
     setName(val.name);
     setprofilepic(val.profilepic);
     setLastname(val.lastname);
-    setCompany(val.company);
+    setCompany(val.companyID);
     setsha256(val.sha256);
   }
   return (
@@ -76,7 +77,7 @@ function App() {
             name={name}
             username={username}
             lastname={lastname}
-            company={company}
+            companyID={companyID}
             sha256={sha256}
             profilepic={profilepic}
             handleLogin={handleLogin}

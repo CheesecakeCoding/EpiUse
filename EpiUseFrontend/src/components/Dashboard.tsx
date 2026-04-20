@@ -10,7 +10,7 @@ interface DashboardProps {
   name: string;
   username: string;
   lastname: string;
-  company: string;
+  companyID: string;
   sha256: string;
   profilepic: string;
   handleLogin: () => void;
@@ -20,7 +20,7 @@ function Dashboard({
   name = "",
   username = "",
   lastname = "",
-  company = "",
+  companyID = "",
   sha256 = "",
   profilepic = "",
   handleLogin,
@@ -29,6 +29,18 @@ function Dashboard({
   const [hierarchyView, sethierarchyView] = useState(false);
   const [createEmployee, setcreateEmployee] = useState(false);
   const [updateInfo, setupdateInfo] = useState(false);
+  const [toEdit, setToEdit] = useState(false);
+  const [editInfo, setEditInfo] = useState([]);
+
+  function handleEdit(val: any) {
+    if (val == "") {
+      setEditInfo([]);
+      setToEdit(false);
+    } else {
+      setToEdit(true);
+      setEditInfo(val);
+    }
+  }
   function handleTableView(val: any) {
     setTableView(val);
     sethierarchyView(!val);
@@ -72,13 +84,19 @@ function Dashboard({
         ></TopNavbar>
         {createEmployee && (
           <CreateEmployee
+            handleEdit={handleEdit}
+            toEdit={toEdit}
             username={username}
-            companyID={company}
+            companyID={companyID}
           ></CreateEmployee>
         )}
 
         {tableView && (
-          <ViewTable basedata={[{}]} username={username}></ViewTable>
+          <ViewTable
+            basedata={[{}]}
+            username={username}
+            companyID={companyID}
+          ></ViewTable>
         )}
         {hierarchyView && <ViewHierarchy username={username}></ViewHierarchy>}
 

@@ -51,3 +51,9 @@
   flex: 1 0 10%;
   background: rgb(31, 51, 71);
 }
+table,
+th,
+td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}

@@ -28,9 +28,52 @@ export const createEmployee = async function (formdata) {
   }
 };
 
-export const getEmployees = async function (username) {
+export const updateEmployees = async function (formdata) {
+  if (formdata != undefined) {
+    var username = formdata.get("username");
+    var firstname = formdata.get("firstname");
+    var surname = formdata.get("surname");
+    var birthdate = formdata.get("birthdate");
+    var salar = formdata.get("salary");
+    var role = formdata.get("role");
+    var managerID = formdata.get("managerID");
+    var department = formdata.get("department");
+    var employeeID = formdata.get("employeeID");
+    var BODY = {
+      username: `${username}`,
+      firstname: `${firstname}`,
+      surname: `${surname}`,
+      birthdate: `${birthdate}`,
+      salary: salar,
+      role: `${role}`,
+      managerID: `${managerID}`,
+      department: `${department}`,
+      employeeID: `${employeeID}`,
+    };
+    var data = await post("employee/update", BODY);
+    return data;
+  }
+};
+
+export const deleteEmployees = async function (formdata) {
+  if (formdata != undefined) {
+    var employeeID = formdata.get("employeeID");
+    var username = formdata.get("username");
+
+    var BODY = {
+      employeeID: `${employeeID}`,
+      username: `${username}`,
+    };
+    console.log(JSON.stringify(BODY));
+    var data = await delete ("employee/delete", BODY);
+    return data;
+  }
+};
+
+export const getEmployees = async function (username, companyID) {
   var BODY = {
     username: `${username}`,
+    companyID: `${companyID}`,
   };
   var data = await post("employeeTable", BODY);
   //console.log(data);

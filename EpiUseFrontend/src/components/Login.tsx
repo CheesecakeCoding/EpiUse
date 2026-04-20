@@ -25,22 +25,30 @@ function Login({
     handleDashboard: React.Dispatch<React.SetStateAction<boolean>>,
     handleUserDetails: any,
   ) {
+    console.log("in sendLogin");
     if (username == null || password == null) {
+      setMessage(`password or username is null`);
+      setAlertVisible(true);
       return;
     }
-
+    console.log("after null check");
     var formdata = new FormData();
     formdata.append("LoginUsername", `${username}`);
     formdata.append("LoginPassword", `${password}`);
+    console.log(`before login`);
     var result = await login(formdata);
+    console.log(`after login`);
     console.log(`Register Res ${result}`);
-    if (!result.hasOwnProperty("login")) {
+    if (!result.login) {
       setAlertVisible(true);
       handleLogin(true);
+      setMessage(result.message);
+      setAlertVisible(true);
       return;
     }
     handleLogin(!result.login);
-
+    setMessage(result.message);
+    setAlertVisible(false);
     console.log(`Result: ${JSON.stringify(result)}`);
     var gravatar = await getGravatar(result.sha);
     console.log(`gravatar ${gravatar}`);
@@ -53,7 +61,7 @@ function Login({
       username: `${result.data.username}`,
       name: `${result.data.firstname}`,
       lastname: `${result.data.surname}`,
-      company: `${result.data.company}`,
+      companyID: `${result.data.companyID}`,
       sha256: `${result.sha}`,
       profilepic: gravatar,
     };
@@ -67,6 +75,7 @@ function Login({
   }
 
   const [alertVisible, setAlertVisible] = useState(false);
+  const [message, setMessage] = useState("");
   return (
     <div className="container">
       <div className="row vh-100 align-items-center justify-content-center">
@@ -113,7 +122,7 @@ function Login({
               </div>
             </div>
             <br />
-            {alertVisible === true && <FailedAlert></FailedAlert>}
+            {alertVisible && <div>{message}</div>}
             <div>
               <div className="d-flex flex-row p-3 float-right">
                 <Button
