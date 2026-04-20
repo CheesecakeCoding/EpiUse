@@ -10,7 +10,7 @@ interface DashboardProps {
   name: string;
   username: string;
   lastname: string;
-  company: string;
+  companyID: string;
   sha256: string;
   profilepic: string;
   handleLogin: () => void;
@@ -20,7 +20,7 @@ function Dashboard({
   name = "",
   username = "",
   lastname = "",
-  company = "",
+  companyID = "",
   sha256 = "",
   profilepic = "",
   handleLogin,
@@ -73,12 +73,20 @@ function Dashboard({
         ></TopNavbar>
         {createEmployee && (
           <CreateEmployee
+            handleEdit={handleEdit}
+            toEdit={toEdit}
             username={username}
-            companyID={company}
+            companyID={companyID}
           ></CreateEmployee>
         )}
 
-        {tableView && <ViewTable username={username}></ViewTable>}
+        {tableView && (
+          <ViewTable
+            basedata={[{}]}
+            username={username}
+            companyID={companyID}
+          ></ViewTable>
+        )}
         {hierarchyView && <ViewHierarchy username={username}></ViewHierarchy>}
 
         {false && updateInfo && <EditProfile username={username}></EditProfile>}

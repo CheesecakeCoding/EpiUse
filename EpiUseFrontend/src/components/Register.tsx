@@ -1,9 +1,9 @@
 import LabledTextBox from "./LabeledTextBox.tsx";
 import Button from "./Button";
 import { register } from "../services/register";
-
+import React, { useState } from "react";
 interface RegisterProps {
-  handleRegister: () => void;
+  handleRegister: (val: boolean) => void;
 }
 
 function Register({ handleRegister }: RegisterProps) {
@@ -23,19 +23,22 @@ function Register({ handleRegister }: RegisterProps) {
     formdata.append("RegisterName", `${firstname}`);
     formdata.append("RegisterSurname", `${lastname}`);
     var result = await register(formdata);
-    if (!result.hasOwnProperty("registered")) {
-      //xxx could do alerts later setAlertVisible(true);
+    if (!result.registered) {
+      setAlertVisible(true);
+      setMessage(result.message);
+      handleRegister(true);
       return;
     }
-    if (!result.registered) {
-      handleRegister(true);
-    }
-    //xxx  Registering was not successful
+
+    //xxx  Registering was successful
     handleRegister(false);
+    setAlertVisible(false);
+    setMessage(result.message);
     console.log(`Result: ${JSON.stringify(result)}`);
     return result;
   }
-
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [message, setMessage] = useState("");
   return (
     <div className="container">
       <div className="row vh-100 align-items-center justify-content-center">
@@ -56,7 +59,7 @@ function Register({ handleRegister }: RegisterProps) {
             </LabledTextBox>
           </div>
           <br />
-
+          {alertVisible && <div>{message}</div>}
           <div>
             <div className="d-flex flex-row-reverse p-3 float-right">
               <Button
@@ -74,6 +77,17 @@ function Register({ handleRegister }: RegisterProps) {
                 type="button"
               >
                 Register
+              </Button>
+              <Button
+                onClick={() => {
+                  handleRegister(false);
+                }}
+                block="btn-block"
+                float="float-right"
+                type="button"
+                color="outline-secondary"
+              >
+                Back To Login
               </Button>
             </div>
           </div>

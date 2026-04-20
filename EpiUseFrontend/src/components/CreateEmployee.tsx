@@ -1,13 +1,22 @@
 import LabledTextBox from "./LabeledTextBox.tsx";
 import LabledTextBoxProps from "./LabeledTextBox.tsx";
 import Button from "./Button";
-import { createEmployee } from "../services/CRUDEmployee";
+import { createEmployee, getEmployees } from "../services/CRUDEmployee";
+
 interface CreateEmployeeProps {
   username: string;
   companyID: string;
+  editEmployee: any;
+  handleEdit: (val: any) => void;
+  toEdit: boolean;
 }
 
-function CreateEmployee({ username, companyID }: CreateEmployeeProps) {
+function CreateEmployee({
+  username,
+  companyID,
+  handleEdit,
+  toEdit = false,
+}: CreateEmployeeProps) {
   async function handleCreateEmployee(
     name: string,
     surname: string,
@@ -27,8 +36,21 @@ function CreateEmployee({ username, companyID }: CreateEmployeeProps) {
     formdata.append("role", `${role}`);
     formdata.append("managerID", "null");
     formdata.append("department", `${department}`);
-    formdata.append("companyID", `${companyID}`);
+    formdata.append("companyID", `${username}`);
     var result = await createEmployee(formdata);
+    try {
+      if (result.created) {
+        var newData = await getEmployees(username, companyID);
+        try {
+          newData = newData.data;
+          handleEdit("");
+        } catch {
+          console.log(newData);
+        }
+      }
+    } catch {
+      console.log(result);
+    }
   }
   return (
     <div className="container">
