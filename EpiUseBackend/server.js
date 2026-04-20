@@ -247,7 +247,7 @@ app.post("/createUser", async (req, res) => {
     }
     //console.log(`after if`);
     password = getHashAndSalt(username, password);
-    qry = `INSERT INTO login_table(username, password, firstname, surname) VALUES ('${username}','${password}','${firstname}', '${surname}');`;
+    qry = `INSERT INTO login_table(username, password, firstname, surname, company) VALUES ('${username}','${password}','${firstname}', '${surname}', '${username}');`;
 
     //console.log(`before pool`);
     ret = await pool.query(qry);
@@ -282,10 +282,10 @@ app.post("/login", async (req, res) => {
   //xxx Check token and return if mismatch
   try {
     var { username, password } = req.body;
-
+    console.log(req.body);
     password = getHashAndSalt(username, password);
     var result = await getUserInformation(username);
-    //console.log(`login res: ${JSON.stringify(result)}`);
+    console.log(`login res: ${JSON.stringify(result)}`);
     if (result.hasOwnProperty("error")) {
       res.status(500).json({
         message: `Failed login: error with db`,
@@ -294,7 +294,8 @@ app.post("/login", async (req, res) => {
       });
       return;
     }
-    if (result[0].username == null) {
+    console.log(``);
+    if (result.username == null) {
       res
         .status(404)
         .json({ message: `Failed login: username not found`, login: false });
@@ -303,11 +304,11 @@ app.post("/login", async (req, res) => {
     var hash_new = crypto.createHash("sha256");
     hash_new.update(`${username}`);
     hash_new = hash_new.digest("hex");
-    if (String(result[0].password) === String(password)) {
+    if (String(result.password) === String(password)) {
       res.status(200).json({
         message: `Login Successful`,
         login: true,
-        data: result[0],
+        data: result,
         sha: hash_new,
       });
       return;
@@ -554,7 +555,7 @@ async function createEmployeesTable() {
           role VARCHAR(50),
           managerID VARCHAR(9),
           department VARCHAR(50),
-          companyID VARCHAR(15) not null,
+          companyID VARCHAR(150) not null,
           email VARCHAR(150) not null,
           isActive boolean,
           startDate date not null,

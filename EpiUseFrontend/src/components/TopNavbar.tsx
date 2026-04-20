@@ -3,7 +3,13 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 
-function TopNavbar() {
+interface TopNavbarProps {
+  name: string;
+  lastname: string;
+  setTableView: () => void;
+}
+
+function TopNavbar({ name, lastname }: TopNavbarProps) {
   return (
     <Navbar
       bg="dark"
@@ -14,11 +20,14 @@ function TopNavbar() {
       }}
     >
       <Container>
-        <Navbar.Brand href="#home">Navbar</Navbar.Brand>
+        <Navbar.Brand>
+          Welcome, {name} {lastname}{" "}
+        </Navbar.Brand>
         <Nav className="me-auto">
-          <Nav.Link href="#home">Home</Nav.Link>
-          <Nav.Link href="#features">Features</Nav.Link>
-          <Nav.Link href="#pricing">Pricing</Nav.Link>
+          <Nav.Link>New Employee</Nav.Link>
+          <Nav.Link>Table View</Nav.Link>
+          <Nav.Link>Hierarchy</Nav.Link>
+          <Nav.Link>Edit details</Nav.Link>
         </Nav>
       </Container>
     </Navbar>

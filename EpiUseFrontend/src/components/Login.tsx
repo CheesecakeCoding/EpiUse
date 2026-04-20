@@ -6,16 +6,24 @@ import { getGravatar } from "../adapters/gravatar";
 
 interface LoginProps {
   handleLogin: () => void;
-  demoAlert: () => void;
   handleRegister: () => void;
+  handleDashboard: () => void;
+  handleUserDetails: () => void;
 }
 
-function Login({ handleLogin, handleRegister }: LoginProps) {
+function Login({
+  handleLogin,
+  handleRegister,
+  handleDashboard,
+  handleUserDetails,
+}: LoginProps) {
   async function sendLogin(
     username: string | null,
     password: string | null,
     handleLogin: React.Dispatch<React.SetStateAction<boolean>>,
     setAlertVisible: React.Dispatch<React.SetStateAction<boolean>>,
+    handleDashboard: React.Dispatch<React.SetStateAction<boolean>>,
+    handleUserDetails: any,
   ) {
     if (username == null || password == null) {
       return;
@@ -31,10 +39,21 @@ function Login({ handleLogin, handleRegister }: LoginProps) {
       return;
     }
     handleLogin(!result.login);
+
     console.log(`Result: ${JSON.stringify(result)}`);
     var gravatar = await getGravatar(result.sha);
     console.log(`gravatar ${gravatar}`);
+    handleDashboard(result.login);
 
+    var userInfo = {
+      username: `${result.data.username}`,
+      name: `${result.data.firstname}`,
+      lastname: `${result.data.surname}`,
+      company: `${result.data.company}`,
+      sha256: `${result.sha}`,
+      profilepic: gravatar,
+    };
+    handleUserDetails(userInfo);
     return result;
   }
 
@@ -43,8 +62,6 @@ function Login({ handleLogin, handleRegister }: LoginProps) {
   }
 
   const [alertVisible, setAlertVisible] = useState(false);
-  const [name, setName] = useState("");
-  const [pass, setPass] = useState("");
   return (
     <div className="container">
       <div className="row vh-100 align-items-center justify-content-center">
@@ -70,7 +87,6 @@ function Login({ handleLogin, handleRegister }: LoginProps) {
                   name="LoginUsername"
                   className="form-control"
                   required
-                  defaultValue={name}
                 />
               </div>
             </div>
@@ -88,7 +104,6 @@ function Login({ handleLogin, handleRegister }: LoginProps) {
                   name="LoginPassword"
                   className="form-control"
                   required
-                  defaultValue={pass}
                 />
               </div>
             </div>
@@ -114,6 +129,8 @@ function Login({ handleLogin, handleRegister }: LoginProps) {
                       document.getElementById("LoginPassword").value,
                       handleLogin,
                       setAlertVisible,
+                      handleDashboard,
+                      handleUserDetails,
                     );
                   }}
                   block="btn-block"
