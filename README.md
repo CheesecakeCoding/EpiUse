@@ -2,7 +2,7 @@
 For my technical Assessment
 
 Frontend found here: https://epiuse-1.onrender.com
-Keep in ,ind that the frontend is hosted on a server which suspends with inactivity. If the site is a black background then just wait till the service starts
+Keep in ,mind that the frontend is hosted on a server which suspends with inactivity. If the site is a black background then just wait till the service starts
 #
 Backend found here: epiuse-production.up.railway.app
 
