@@ -17,13 +17,21 @@ function App() {
   //--- flags used to determine which page to display;
   const [needLogin, setNeedLogin] = useState(true);
   const [registering, setRegistering] = useState(false);
-  const [dashboard, setDashboard] = useState(true);
-  const [owner, setOwner] = useState(false);
-  const [createEmployee, setcreateEmployee] = useState(true);
-  const [viewHierarchy, setviewHierarchy] = useState(false);
-  const [viewTable, setviewTable] = useState(false);
-  const [CERoles, setCERoles] = useState(false);
-  const [EEmployeeData, setEEmployeeData] = useState(false);
+  const [dashboard, setDashboard] = useState(false);
+  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
+  const [lastname, setLastname] = useState("");
+  const [company, setCompany] = useState("");
+  const [sha256, setsha256] = useState("");
+  const [profilepic, setprofilepic] = useState("");
+  const [userDetails, setUserDetails] = useState({
+    username: "",
+    name: "",
+    lastname: "",
+    company: "",
+    sha256: "",
+    profilepic: "",
+  });
   //--- Assigning functions to manipulate the above states across different components
   function handleLogin(val) {
     setNeedLogin(val);
@@ -36,42 +44,41 @@ function App() {
     setDashboard(val);
   }
 
-  function handleCreateCompany(val) {
-    setcreateCompany(val);
+  function handleUserDetails(val) {
+    setUserDetails(val);
+    setUsername(val.username);
+    setName(val.name);
+    setprofilepic(val.profilepic);
+    setLastname(val.lastname);
+    setCompany(val.company);
+    setsha256(val.sha256);
   }
-
-  function handleCreateEmployee(val) {
-    setcreateEmployee(val);
-  }
-
-  function handleViewHierarchy(val) {
-    setviewHierarchy(val);
-  }
-
-  function handleViewTable(val) {
-    setviewTable(val);
-  }
-
-  function handleRoles(val) {
-    setCERoles(val);
-  }
-
-  function handleEmployeeData(val) {
-    setEEmployeeData(val);
-  }
-
   return (
     <>
       <div className="container LoginContainer" maxwidth="100%">
         {needLogin && !registering && (
-          <Login handleLogin={handleLogin} handleRegister={handleRegister} />
+          <Login
+            handleLogin={handleLogin}
+            handleRegister={handleRegister}
+            handleDashboard={handleDashboard}
+            handleUserDetails={handleUserDetails}
+          />
         )}
       </div>
       <div className="container RegisterContainer" maxWidth="100%">
         {registering && <Register handleRegister={handleRegister} />}
       </div>
       <div className="container DashboardContainer">
-        {dashboard && <Dashboard />}
+        {dashboard && (
+          <Dashboard
+            name={name}
+            username={username}
+            lastname={lastname}
+            company={company}
+            sha256={sha256}
+            profilepic={profilepic}
+          />
+        )}
       </div>
     </>
   );
