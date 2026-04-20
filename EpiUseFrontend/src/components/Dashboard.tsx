@@ -29,18 +29,7 @@ function Dashboard({
   const [hierarchyView, sethierarchyView] = useState(false);
   const [createEmployee, setcreateEmployee] = useState(false);
   const [updateInfo, setupdateInfo] = useState(false);
-  const [toEdit, setToEdit] = useState(false);
-  const [editInfo, setEditInfo] = useState([]);
 
-  function handleEdit(val: any) {
-    if (val == "") {
-      setEditInfo([]);
-      setToEdit(false);
-    } else {
-      setToEdit(true);
-      setEditInfo(val);
-    }
-  }
   function handleTableView(val: any) {
     setTableView(val);
     sethierarchyView(!val);
