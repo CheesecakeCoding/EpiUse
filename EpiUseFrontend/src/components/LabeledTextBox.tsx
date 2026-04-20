@@ -1,10 +1,11 @@
 interface LabledTextBoxProps {
+  children?: string;
   type?: "text" | "date" | "number";
-  placeholder?: String;
-  id: String;
-  className?: String;
-  required?: Boolean;
-  defaultValue?: String;
+  placeholder?: string;
+  id: string;
+  className?: string;
+  required?: boolean;
+  defaultValue?: string;
 }
 
 function LabledTextBox({
@@ -15,7 +16,7 @@ function LabledTextBox({
   className = "",
   required = false,
   defaultValue = "",
-}) {
+}: LabledTextBoxProps) {
   return (
     <div className="row">
       <div className="col">

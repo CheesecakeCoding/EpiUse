@@ -28,6 +28,7 @@ function Login({
     if (username == null || password == null) {
       return;
     }
+
     var formdata = new FormData();
     formdata.append("LoginUsername", `${username}`);
     formdata.append("LoginPassword", `${password}`);
@@ -43,6 +44,9 @@ function Login({
     console.log(`Result: ${JSON.stringify(result)}`);
     var gravatar = await getGravatar(result.sha);
     console.log(`gravatar ${gravatar}`);
+    if (gravatar == "" || gravatar == undefined) {
+      gravatar = null;
+    }
     handleDashboard(result.login);
 
     var userInfo = {
@@ -54,6 +58,7 @@ function Login({
       profilepic: gravatar,
     };
     handleUserDetails(userInfo);
+
     return result;
   }
 

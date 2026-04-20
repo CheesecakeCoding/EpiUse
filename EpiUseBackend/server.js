@@ -64,7 +64,7 @@ app.get("/hierarchy", async (req, res) => {
   }
 });
 
-app.get("/employeeTable", async (req, res) => {
+app.post("/employeeTable", async (req, res) => {
   try {
     var { username, companyID } = req.body;
     if (!canViewHierarchy()) {
@@ -99,10 +99,9 @@ app.post("/employee/create", async (req, res) => {
       role,
       managerID,
       department,
-      companyID,
     } = req.body;
     var managerMsg = "Assigned Manager successfully";
-
+    var companyID = await createCompanyID(username);
     if (
       !(
         managerID === undefined ||
@@ -225,7 +224,7 @@ app.post("/employee/delete", async (req, res) => {
 
 app.post("/createUser", async (req, res) => {
   try {
-    //console.log(req.body);
+    console.log(req.body);
     var username = req.body.username;
     var password = req.body.password;
     var firstname = req.body.name;
@@ -235,8 +234,8 @@ app.post("/createUser", async (req, res) => {
     var ret = [{ username: "", password: "", firstname: "", surname: "" }];
     //console.log(`before if `);
     //console.log(`existingUser: ${existingUser}`);
-    console.log(`len: ${JSON.stringify(existingUser)}`);
-    console.log(`username: ${existingUser.username}`);
+    //console.log(`len: ${JSON.stringify(existingUser)}`);
+    //console.log(`username: ${existingUser.username}`);
     if (!(existingUser.username === null)) {
       //console.log(`in if`);
       res.status(409).json({
@@ -245,13 +244,13 @@ app.post("/createUser", async (req, res) => {
       });
       return;
     }
-    //console.log(`after if`);
     password = getHashAndSalt(username, password);
-    qry = `INSERT INTO login_table(username, password, firstname, surname, company) VALUES ('${username}','${password}','${firstname}', '${surname}', '${username}');`;
+    var compID = await createCompanyID(username);
+    qry = `INSERT INTO login_table(username, password, firstname, surname, companyID) VALUES ('${username}','${password}','${firstname}', '${surname}', '${compID}');`;
 
-    //console.log(`before pool`);
     ret = await pool.query(qry);
-    //console.log(ret[0]);
+
+    console.log(ret[0]);
     //console.log(`createUser ${JSON.stringify(ret[0])}`);
     if ((ret.affectedRows = 1))
       res.status(201).json({
@@ -476,16 +475,17 @@ function getSubString(the_string) {
 function pad(the_string, count) {
   the_string = `0${the_string}`;
   if (the_string.length < count) {
-    the_string = padd(the_string, count);
+    the_string = pad(the_string, count);
   }
   return the_string;
 }
 
 async function createCompanyID(username, company) {
-  var code = String.replace(company, " ");
-  code = pad(CommandFailedEvent, 4);
+  //var code = String.replace(username, " ");
+  code = getSubString(username);
+  code = pad(code, 4);
   var res = await pool.query(
-    `SELECT * from companies where companyID like '${code}%'`,
+    `SELECT * from employees where companyID like '${code}%'`,
   );
   return `${code}${pad(res.length, 4)}`;
 }
@@ -531,7 +531,7 @@ async function createLoginTable() {
       CREATE TABLE IF NOT EXISTS login_table (
         username VARCHAR(150) PRIMARY KEY,
         password VARCHAR(64) not null,
-        company VARCHAR(255),
+        companyID VARCHAR(9) not null,
         firstname VARCHAR(50) not null,
         surname VARCHAR(60) not null
       );
@@ -555,7 +555,7 @@ async function createEmployeesTable() {
           role VARCHAR(50),
           managerID VARCHAR(9),
           department VARCHAR(50),
-          companyID VARCHAR(150) not null,
+          companyID VARCHAR(9) not null,
           email VARCHAR(150) not null,
           isActive boolean,
           startDate date not null,
@@ -574,7 +574,7 @@ async function createRolesTable() {
       CREATE TABLE IF NOT EXISTS roles (
        roleID INT AUTO_INCREMENT,
         role VARCHAR(50) not null,
-        companyID VARCHAR(60) not null,
+        companyID VARCHAR(9) not null,
         PRIMARY KEY(roleID)
       );
     `);
