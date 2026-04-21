@@ -6,17 +6,9 @@ import React, { useState } from "react";
 interface CreateEmployeeProps {
   username: string;
   companyID: string;
-  editEmployee: any;
-  handleEdit: (val: any) => void;
-  toEdit: boolean;
 }
 
-function CreateEmployee({
-  username,
-  companyID,
-  handleEdit,
-  toEdit = false,
-}: CreateEmployeeProps) {
+function CreateEmployee({ username, companyID }: CreateEmployeeProps) {
   function clear() {
     document.getElementById("CreateEmployeeName").value = "";
     document.getElementById("CreateEmployeeLastame").value = "";
