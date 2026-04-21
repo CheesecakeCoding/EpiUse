@@ -88,6 +88,7 @@ app.post("/employeeTable", async (req, res) => {
     res.status(200).json({
       message: `Query executed successfully`,
       data: result[0],
+      qry: { qry },
     });
   } catch (err) {
     res.status(500).json({ error: err.message, path: "/employeeTable" });
