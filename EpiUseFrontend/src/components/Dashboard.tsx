@@ -72,8 +72,6 @@ function Dashboard({
         ></TopNavbar>
         {createEmployee && (
           <CreateEmployee
-            handleEdit={handleEdit}
-            toEdit={toEdit}
             username={username}
             companyID={companyID}
           ></CreateEmployee>

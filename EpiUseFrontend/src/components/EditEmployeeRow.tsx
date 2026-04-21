@@ -22,7 +22,7 @@ function EditEmployeeRow({
     if (res.deleted) {
       setShowAlerts(false);
       setMessage("");
-      setLocalRefresh(true);
+      handelLocalRefresh(true);
     } else {
       setMessage(`${res.message}`);
       setShowAlerts(true);
