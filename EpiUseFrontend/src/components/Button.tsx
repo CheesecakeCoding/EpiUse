@@ -1,3 +1,7 @@
+self.$RefreshReg$ = () => {};
+self.$RefreshSig$ = () => () => {};
+
+
 interface buttonProps {
   children: String;
   color?: "primary" | "secondary" | "danger" | "outline-secondary";
