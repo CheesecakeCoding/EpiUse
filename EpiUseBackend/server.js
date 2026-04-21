@@ -80,7 +80,7 @@ app.post("/employeeTable", async (req, res) => {
         error: true,
       });
     }
-
+    companyID = createCompanyID(username);
     var qry = `
       select * from employees where companyID = '${companyID}'`;
     ////console.log(qry);
