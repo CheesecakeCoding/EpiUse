@@ -1,10 +1,9 @@
-import { getEmployees } from "../services/CRUDEmployee";
+import { getHierarchy } from "../services/CRUDEmployee";
 import { useState } from "react";
 import Button from "./Button";
-import EditEmployeeRow from "./EditEmployeeRow";
-interface ViewTableProps {
+
+interface ViewHierarchyProps {
   username: string;
-  basedata: any;
   companyID: string;
 }
 async function populateTable(
@@ -12,7 +11,8 @@ async function populateTable(
   companyID: string,
   setData: any,
 ) {
-  var newData = await getEmployees(username, companyID);
+  var newData = await getHierarchy(username, companyID);
+  console.log(newData);
   try {
     newData = newData.data;
     setData(newData);
@@ -21,10 +21,22 @@ async function populateTable(
   }
 }
 
-function ViewTable({ username, companyID, basedata }: ViewTableProps) {
-  const [data, setData] = useState(basedata);
+function ViewHierarchy({ username, companyID, basedata }: ViewHierarchyProps) {
+  const [data, setData] = useState([{}]);
   const [refresh, setRefresh] = useState(false);
-
+  const DisplayData = data.map((info: any) => {
+    return (
+      <>
+        <tr>
+          <td>{info.name}</td>
+          <td>{info.department}</td>
+          <td>{info.level}</td>
+          <td></td>
+          <td colSpan={7}>{info.PATH}</td>
+        </tr>
+      </>
+    );
+  });
   function handleRefresh(val: boolean) {
     if (val) {
       populateTable(username, companyID, setData);
@@ -40,15 +52,12 @@ function ViewTable({ username, companyID, basedata }: ViewTableProps) {
         <table>
           <thead>
             <tr>
-              <th>EmployeeID</th>
               <th>Name</th>
-              <th>Surname</th>
-              <th>Birthdate</th>
-              <th>Salary</th>
-              <th>Role</th>
-              <th>ManagerID</th>
-              <th>Department</th>
-              <th>Email</th>
+              <th>department</th>
+              <th>Level</th>
+              <th> </th>
+              <th colSpan={7}>Path</th>
+
               <th>
                 <Button
                   color="outline-secondary"
@@ -64,15 +73,11 @@ function ViewTable({ username, companyID, basedata }: ViewTableProps) {
               </th>
             </tr>
           </thead>
-          <EditEmployeeRow
-            handleRefresh={handleRefresh}
-            data={data}
-            ownerUsername={username}
-          ></EditEmployeeRow>
+          <tbody>{DisplayData}</tbody>
         </table>
       </div>
     </div>
   );
 }
 
-export default ViewTable;
+export default ViewHierarchy;

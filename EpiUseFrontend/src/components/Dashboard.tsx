@@ -2,7 +2,6 @@ import TopNavbar from "./TopNavbar";
 import EditProfile from "./EditProfile";
 import CreateEmployee from "./CreateEmployee";
 import ViewTable from "./ViewTable";
-import { getEmployees } from "../services/CRUDEmployee";
 
 import ViewHierarchy from "./ViewHierarchy";
 import { useState } from "react";
@@ -87,7 +86,12 @@ function Dashboard({
             companyID={companyID}
           ></ViewTable>
         )}
-        {hierarchyView && <ViewHierarchy username={username}></ViewHierarchy>}
+        {hierarchyView && (
+          <ViewHierarchy
+            username={username}
+            companyID={companyID}
+          ></ViewHierarchy>
+        )}
 
         {false && updateInfo && <EditProfile username={username}></EditProfile>}
       </div>

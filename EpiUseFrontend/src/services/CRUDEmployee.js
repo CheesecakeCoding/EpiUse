@@ -65,7 +65,7 @@ export const deleteEmployees = async function (formdata) {
       username: `${username}`,
     };
     console.log(JSON.stringify(BODY));
-    var data = await delete ("employee/delete", BODY);
+    var data = await post("employee/delete", BODY);
     return data;
   }
 };
@@ -76,6 +76,16 @@ export const getEmployees = async function (username, companyID) {
     companyID: `${companyID}`,
   };
   var data = await post("employeeTable", BODY);
+  //console.log(data);
+  return data;
+};
+
+export const getHierarchy = async function (username, companyID) {
+  var BODY = {
+    username: `${username}`,
+    companyID: `${companyID}`,
+  };
+  var data = await post("hierarchy", BODY);
   //console.log(data);
   return data;
 };

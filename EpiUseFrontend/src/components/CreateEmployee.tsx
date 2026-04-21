@@ -2,7 +2,7 @@ import LabledTextBox from "./LabeledTextBox.tsx";
 import LabledTextBoxProps from "./LabeledTextBox.tsx";
 import Button from "./Button";
 import { createEmployee, getEmployees } from "../services/CRUDEmployee";
-
+import React, { useState } from "react";
 interface CreateEmployeeProps {
   username: string;
   companyID: string;
@@ -17,6 +17,15 @@ function CreateEmployee({
   handleEdit,
   toEdit = false,
 }: CreateEmployeeProps) {
+  function clear() {
+    document.getElementById("CreateEmployeeName").value = "";
+    document.getElementById("CreateEmployeeLastame").value = "";
+    document.getElementById("CreateEmployeeEmail").value = "";
+    document.getElementById("CreateEmployeeBirthdate").value = "";
+    document.getElementById("CreateEmployeeSalary").value = 0;
+    document.getElementById("CreateEmployeeRole").value = "";
+    document.getElementById("CreateEmployeeDepartment").value = "";
+  }
   async function handleCreateEmployee(
     name: string,
     surname: string,
@@ -38,8 +47,11 @@ function CreateEmployee({
     formdata.append("department", `${department}`);
     formdata.append("companyID", `${username}`);
     var result = await createEmployee(formdata);
+    setAlertVisible(true);
+    setMessage(result.message);
     try {
       if (result.created) {
+        clear();
         var newData = await getEmployees(username, companyID);
         try {
           newData = newData.data;
@@ -52,6 +64,9 @@ function CreateEmployee({
       console.log(result);
     }
   }
+
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [message, setMessage] = useState("");
   return (
     <div className="container">
       <div className="row vh-100 align-items-center justify-content-center">
@@ -115,6 +130,7 @@ function CreateEmployee({
                 Department
               </LabledTextBox>
               <br />
+              {alertVisible && <div>{message}</div>}
               <div className="d-flex flex-row-reverse p-3 float-right">
                 <Button
                   onClick={() => {

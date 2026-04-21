@@ -36,7 +36,7 @@ app.get("/createTables", async (req, res) => {
   }
 });
 
-app.get("/hierarchy", async (req, res) => {
+app.post("/hierarchy", async (req, res) => {
   try {
     var { username, companyID } = req.body;
     if (!canViewHierarchy()) {
@@ -224,11 +224,11 @@ app.post("/employee/update", async (req, res) => {
   }
 });
 
-app.delete("/employee/delete", async (req, res) => {
+app.post("/employee/delete", async (req, res) => {
   try {
-    var { username } = req.body;
-    var qry = `DELETE FROM employees where email = '${username}' limit 1`;
-    console.log(qry);
+    var { username, employeeID } = req.body;
+    var qry = `DELETE FROM employees where email = '${username}' and employeeID = '${employeeID}' limit 1`;
+    //console.log(qry);
     var ret = pool.query(qry);
     res.status(201).json({
       message: `Deleted employee successfully`,
