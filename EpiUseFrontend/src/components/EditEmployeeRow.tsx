@@ -52,14 +52,15 @@ function EditEmployeeRow({
     formdata.append("employeeID", `${employeeID}`);
 
     var result = await updateEmployees(formdata);
+    console.log(result);
     if (result.updated && result.managered) {
       setShowAlerts(false);
       setMessage("");
-      setLocalRefresh(true);
     } else {
       setMessage(`${result.message} \n ${result.managerMsg}`);
       setShowAlerts(true);
     }
+    handelLocalRefresh(true);
   }
 
   //{showAlerts & <tr><td colSpan={9}>ff</td></tr>}
